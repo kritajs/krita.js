@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=Krita/PythonPlugin
+X-KDE-Library=kritajs
+X-Python-2-Compatible=false
+X-Krita-Manual=Manual.html
+Name=krita.js
+Comment=krita.js is a Krita plugin that allows users to write scripts using JavaScript.
