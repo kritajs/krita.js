@@ -1,6 +1,7 @@
 from krita import *
 import sys
 from pathlib import Path
+from PyQt5.QtCore import qDebug
 
 # Add lib folder to sys.path so we can import packages from lib
 p = Path(__file__).parent / "lib"
@@ -15,7 +16,7 @@ class kritajs(Extension):
         super().__init__(parent)
 
     def setup(self):
-        #This runs only once when app is installed
+        # This runs only once when app is installed
         pass
 
     def createActions(self, window):
