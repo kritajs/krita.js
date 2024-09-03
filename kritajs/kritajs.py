@@ -32,12 +32,18 @@ def start():
     qDebug("Starting krita.js...")
 
     # Close Sciter when main Krita window closes
-    Krita.instance().activeWindow().qwindow().destroyed.connect(dispose)
+    qwindow = Krita.instance().activeWindow().qwindow()
+    qwindow.destroyed.connect(dispose)
 
-    # isMain should be set to True in order for Sciter to close correctly when Krita closes.
+    size = qwindow.size()
+    dpr = qwindow.devicePixelRatio()
+    # ismain should be set to True in order for Sciter to close correctly when Krita closes.
     # Main windows terminate the Sciter process when closed.
     # If false, Sciter will still be loaded and prevent Krita from fully closing, causing memory leaks.
-    frame = sciter.Window(ismain=True)
+    frame = sciter.Window(
+        ismain=True, 
+        size=[size.width() * dpr, size.height() * dpr]
+    )
     frame.load_file(str(Path(__file__).parent / "minimal.htm"))
     frame.expand()
 
@@ -57,4 +63,4 @@ def dispose():
         frame = None
 
 ext = kritajs(Krita.instance())
-Krita.instance().addExtension(ext) 
+Krita.instance().addExtension(ext)

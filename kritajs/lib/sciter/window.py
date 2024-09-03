@@ -21,7 +21,7 @@ class Window(sciter.platform.BaseWindow, sciter.host.Host, sciter.event.EventHan
         if resizeable:
             flags = flags | SCITER_CREATE_WINDOW_FLAGS.SW_RESIZEABLE
         if ismain:
-            flags = flags | SCITER_CREATE_WINDOW_FLAGS.SW_MAIN | SCITER_CREATE_WINDOW_FLAGS.SW_TITLEBAR
+            flags = flags | SCITER_CREATE_WINDOW_FLAGS.SW_MAIN | SCITER_CREATE_WINDOW_FLAGS.SW_TITLEBAR | SCITER_CREATE_WINDOW_FLAGS.SW_TOOL
         elif ispopup:
             flags = flags | SCITER_CREATE_WINDOW_FLAGS.SW_POPUP
         elif ischild:
