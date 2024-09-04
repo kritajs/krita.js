@@ -3,7 +3,7 @@
 krita.js is a Krita plugin that allows users to write scripts using JavaScript.
 
 ## To do
-- [x]  Don’t run Sciter as separate window DONE
+- [x]  Don’t run Sciter as separate window
 - [ ]  Slot Sciter window into Qt widgets
 - [ ]  Create JS bindings for Krita API
 - [ ]  Generate .d.ts files for Krita API
