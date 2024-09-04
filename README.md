@@ -2,6 +2,14 @@
 
 krita.js is a Krita plugin that allows users to write scripts using JavaScript.
 
+## To do
+- [x]  Don’t run Sciter as separate window DONE
+- [ ]  Slot Sciter window into Qt widgets
+- [ ]  Create JS bindings for Krita API
+- [ ]  Generate .d.ts files for Krita API
+- [ ]  Figure out interface for krita.js plugins
+- [ ]  Set up packaging/release pipeline for multiple platforms
+
 ## Installation
 
 First, download the [Sciter SDK](https://sciter.com/download/) and unzip it.
