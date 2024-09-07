@@ -3,12 +3,6 @@ import sys
 from pathlib import Path
 from PyQt5.QtCore import qDebug
 
-# Add lib folder to sys.path so we can import packages from lib
-p = Path(__file__).parent / "lib"
-sys.path.append(str(p))
-
-import sciter
-
 frame = None
 
 class kritajs(Extension):
@@ -31,27 +25,8 @@ def start():
 
     qDebug("Starting krita.js...")
 
-    # Close Sciter when main Krita window closes
     qwindow = Krita.instance().activeWindow().qwindow()
     qwindow.destroyed.connect(dispose)
-
-    size = qwindow.size()
-    dpr = qwindow.devicePixelRatio()
-    # ismain should be set to True in order for Sciter to close correctly when Krita closes.
-    # Main windows terminate the Sciter process when closed.
-    # If false, Sciter will still be loaded and prevent Krita from fully closing, causing memory leaks.
-    frame = sciter.Window(
-        ismain=True, 
-        size=[size.width() * dpr, size.height() * dpr]
-    )
-    frame.load_file(str(Path(__file__).parent / "minimal.htm"))
-    frame.expand()
-
-    # run_app() will enter the main Sciter loop which is infinite until the main Sciter window is closed
-    frame.run_app()
-
-    # Code after run_app will not run until the main Sciter window is closed
-    frame = None
     qDebug("krita.js has been closed!")
 
 def dispose():
