@@ -3,12 +3,12 @@
 krita.js is a Krita plugin that allows users to write scripts using JavaScript.
 
 ## To do
-- [x]  Don’t run Sciter as separate window
-- [ ]  Slot Sciter window into Qt widgets
-- [ ]  Create JS bindings for Krita API
-- [ ]  Generate .d.ts files for Krita API
-- [ ]  Figure out interface for krita.js plugins
-- [ ]  Set up packaging/release pipeline for multiple platforms
+
+- [ ] Slot Sciter window into Qt widgets
+- [ ] Create JS bindings for Krita API
+- [ ] Generate .d.ts files for Krita API
+- [ ] Figure out interface for krita.js plugins
+- [ ] Set up packaging/release pipeline for multiple platforms
 
 ## Installation
 
@@ -42,11 +42,11 @@ To do this on Windows, clone this repo and then run the commands below in a comm
 Create symlink to `kritajs` folder:
 
 ```
-mklink /D "C:\Users\myuser\AppData\Roaming\krita\pykrita\kritajs" "absolute\path\to\krita.js\kritajs"
+mklink /D "C:\Users\myuser\AppData\Roaming\krita\pykrita\kritajs" "absolute\path\to\krita.js\src\plugin\kritajs"
 ```
 
 Create symlink to `kritajs.desktop` file:
 
 ```
-mklink /H "C:\Users\myuser\AppData\Roaming\krita\pykrita\kritajs.desktop" "absolute\path\to\krita.js\kritajs.desktop"
+mklink /H "C:\Users\myuser\AppData\Roaming\krita\pykrita\kritajs.desktop" "absolute\path\to\krita.js\src\plugin\kritajs.desktop"
 ```
