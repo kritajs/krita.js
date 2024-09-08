@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <QDebug>
+#include <libkis/Krita.h>
 
 extern "C" __declspec(dllexport) int add_one(int i);
 
