@@ -1,9 +1,7 @@
 from krita import *
-import sys
+import ctypes
 from pathlib import Path
 from PyQt5.QtCore import qDebug
-
-frame = None
 
 class kritajs(Extension):
     def __init__(self, parent):
@@ -18,24 +16,20 @@ class kritajs(Extension):
         action.triggered.connect(start)
 
 def start():
-    global frame
-    if (frame is not None):
-        qDebug("krita.js is already running!")
-        return
-
-    qDebug("Starting krita.js...")
-
+    # Perform any cleanup when Krita needs to close
     qwindow = Krita.instance().activeWindow().qwindow()
     qwindow.destroyed.connect(dispose)
-    qDebug("krita.js has been closed!")
+
+    lib_path = Path(__file__).parent / "bin/loader.dll"
+    lib = ctypes.CDLL(str(lib_path))
+    py_add_one = lib.add_one
+    py_add_one.argtypes = [ctypes.c_int]
+    value = 5
+    results = py_add_one(value)
+    qDebug(str(results))
 
 def dispose():
-    global frame
-    if (frame is not None):
-        qDebug("Closing krita.js...")
-        frame.dismiss()
-        frame.quit_app()
-        frame = None
+    pass
 
 ext = kritajs(Krita.instance())
 Krita.instance().addExtension(ext)

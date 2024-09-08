@@ -1,0 +1,32 @@
+{
+  "tasks": [
+    {
+      "type": "cppbuild",
+      "label": "Build loader.dll",
+      "command": "g++",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-I\"${workspaceFolder}/deps/qtbase-5.15.2-mingw81_64/include\"",
+        "-I\"${workspaceFolder}/deps/qtbase-5.15.2-mingw81_64/include/QtCore\"",
+        "-I\"${workspaceFolder}/deps/qtbase-5.15.2-mingw81_64/include/QtWidgets\"",
+        "-I\"${workspaceFolder}/src/loader\"",
+        "-L\"C:/Program Files/Krita (x64)/bin\"",
+        "-lQt5Core",
+        "-shared",
+        "-o",
+        "${workspaceFolder}/src/plugin/kritajs/bin/loader.dll",
+        "${workspaceFolder}/src/loader/loader.cpp"
+      ],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "detail": "Build loader.dll"
+    }
+  ],
+  "version": "2.0.0"
+}
