@@ -1,31 +1,44 @@
 {
   "tasks": [
     {
-      "type": "cppbuild",
-      "label": "Build loader.dll",
-      "command": "g++",
+      "type": "shell",
+      "label": "Generate build files",
+      "command": "cmake",
       "args": [
-        "-fdiagnostics-color=always",
-        "-I\"${workspaceFolder}/deps/qtbase-5.15.2-mingw81_64/include\"",
-        "-I\"${workspaceFolder}/deps/qtbase-5.15.2-mingw81_64/include/QtCore\"",
-        "-I\"${workspaceFolder}/deps/qtbase-5.15.2-mingw81_64/include/QtWidgets\"",
-        "-I\"${workspaceFolder}/src/loader\"",
-        "-L\"C:/Program Files/Krita (x64)/bin\"",
-        "-lQt5Core",
-        "-shared",
-        "-o",
-        "${workspaceFolder}/src/plugin/kritajs/bin/loader.dll",
-        "${workspaceFolder}/src/loader/loader.cpp"
+        "-G",
+        "MinGW Makefiles",
+        "-D",
+        "CMAKE_C_COMPILER=gcc",
+        "-D",
+        "CMAKE_CXX_COMPILER=g++",
+        "-B",
+        "build"
       ],
       "options": {
-        "cwd": "${fileDirname}"
+        "cwd": "${workspaceFolder}"
       },
       "problemMatcher": ["$gcc"],
       "group": {
         "kind": "build",
         "isDefault": true
       },
-      "detail": "Build loader.dll"
+      "detail": "Generate build files"
+    },
+
+    {
+      "type": "shell",
+      "label": "Build",
+      "command": "cmake",
+      "args": ["--build", "build", "--config", "Release"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "detail": "Build"
     }
   ],
   "version": "2.0.0"

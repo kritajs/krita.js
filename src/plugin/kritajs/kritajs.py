@@ -20,7 +20,7 @@ def start():
     qwindow = Krita.instance().activeWindow().qwindow()
     qwindow.destroyed.connect(dispose)
 
-    lib_path = Path(__file__).parent / "bin/loader.dll"
+    lib_path = Path(__file__).parent / "bin/libloader"
     lib = ctypes.CDLL(str(lib_path))
     py_add_one = lib.add_one
     py_add_one.argtypes = [ctypes.c_int]
