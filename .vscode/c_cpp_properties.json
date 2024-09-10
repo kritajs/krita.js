@@ -2,9 +2,6 @@
   "configurations": [
     {
       "name": "Win32",
-      "includePath": [
-        "${workspaceFolder}/deps/qtbase-5.15.2-mingw81_64/include"
-      ],
       "defines": ["_DEBUG", "UNICODE", "_UNICODE"],
       "windowsSdkVersion": "10.0.22621.0",
       "compilerPath": "cl.exe",

@@ -6,6 +6,7 @@ krita.js is a Krita plugin that allows users to create plugins using HTML, CSS a
 
 - [ ] Implement Ultralight prototype
 - [ ] Draw Ultralight view into QDockWidget
+- [x] Figure out how to call `libkis`
 - [ ] Create JS bindings for Krita API
 - [ ] Generate .d.ts files for Krita API
 - [ ] Figure out interface for krita.js plugins
@@ -30,8 +31,6 @@ To build krita.js, you'll need to download/install the following:
 
 You will also need a few code dependencies. Each of the dependencies should be placed in a `deps` folder at the root of this repo.
 
-- [Krita source](https://invent.kde.org/graphics/krita)
-  - Contains the `libkis` headers which will allow krita.js to call into the `libkis` dynamic library
 - [qtbase](https://mirrors.dotsrc.org/.mirrors/qtproject/online/qtsdkrepository/windows_x86/desktop/qt5_5152/qt.qt5.5152.win64_mingw81/5.15.2-0-202011130602qtbase-Windows-Windows_10-Mingw-Windows-Windows_10-X86_64.7z)
   - Contains headers for the main functionality of Qt
   - After extracting, rename the `mingw81_64` folder to `qtbase-5.15.2-mingw81_64` and then move it to `deps`
@@ -42,7 +41,6 @@ Your folder structure should look like:
 krita.js/
 ├─ .vscode/
 ├─ deps/
-│  ├─ krita/
 │  ├─ qtbase-5.15.2-mingw81_64/
 ├─ src/
 ├─ typings/
@@ -50,7 +48,7 @@ krita.js/
 
 ### Building
 
-In VS Code, press **Ctrl + Shift + B** to run the build.
+In VS Code, press **Ctrl + Shift + B** to run the build. This will build a `loader.dll` file into `src/plugin/bin`.
 
 ### Using symlinks
 
