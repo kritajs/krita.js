@@ -6,18 +6,25 @@
       "command": "g++",
       "args": [
         "-fdiagnostics-color=always",
+        // Qt includes
         "-I\"${workspaceFolder}/deps/qtbase-5.15.2-mingw81_64/include\"",
         "-I\"${workspaceFolder}/deps/qtbase-5.15.2-mingw81_64/include/QtCore\"",
         "-I\"${workspaceFolder}/deps/qtbase-5.15.2-mingw81_64/include/QtWidgets\"",
-        "-I\"${workspaceFolder}/src/loader\"",
+        // Custom libkis header includes
         "-I\"${workspaceFolder}/src/loader/libkis\"",
+        // Specify the directory containing the dynamic libraries we want to link to
         "-L\"C:/Program Files/Krita (x64)/bin\"",
+        // Dynamic libraries to link to
         "-llibkritalibkis",
         "-lQt5Core",
+        // Flag to create a dynamic library (for example, a .dll) instead of an executable
         "-shared",
+        // Outputs temporary build files such as object files (.o). Useful for checking name mangling.
         "-save-temps=obj",
+        // Specify output directory
         "-o",
         "${workspaceFolder}/src/plugin/kritajs/bin/loader.dll",
+        // The input source file(s)
         "${workspaceFolder}/src/loader/loader.cpp"
       ],
       "options": {
