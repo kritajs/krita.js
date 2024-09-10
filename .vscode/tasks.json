@@ -44,6 +44,17 @@
       "args": ["${file}"],
       "problemMatcher": ["$gcc"],
       "detail": "Inspect opened object (.o) file. Useful for checking how symbol names are mangled by g++."
+    },
+    {
+      "type": "shell",
+      "label": "Run bindgen",
+      "command": "./ENV/Scripts/python",
+      "args": ["./bindgen.py", "${workspaceFolder}/deps/krita/libs/libkis"],
+      "options": {
+        "cwd": "${workspaceFolder}/tools/bindgen"
+      },
+      "problemMatcher": ["$gcc"],
+      "detail": "Generate custom libkis headers, JS bindings and TS declaration files."
     }
   ],
   "version": "2.0.0"
