@@ -22,10 +22,10 @@ def start():
 
     lib_path = Path(__file__).parent / "bin/loader.dll"
     lib = ctypes.CDLL(str(lib_path))
-    py_add_one = lib.add_one
-    py_add_one.argtypes = [ctypes.c_int]
+    init_kritajs = lib.KRITAJS
+    init_kritajs.argtypes = [ctypes.c_int]
     value = 5
-    results = py_add_one(value)
+    results = init_kritajs(value)
     qDebug(str(results))
 
 def dispose():
