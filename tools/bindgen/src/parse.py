@@ -2,8 +2,6 @@ import dataclasses
 import io
 from cxxheaderparser.simple import parse_string, ParsedData
 
-from utils import GENERATED_FOLDER_PATH, write_file
-
 # Converts ParsedData into a more readable format. This function removes fields that
 # are equal to their default value so that we don't get an overly busy result.
 # Copied verbatim from https://github.com/robotpy/cxxheaderparser/issues/4

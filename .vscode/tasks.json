@@ -6,6 +6,8 @@
       "command": "g++",
       "args": [
         "-fdiagnostics-color=always",
+        // Disable warnings
+        "-w",
         // Qt includes
         "-I\"${workspaceFolder}/deps/qtbase-5.15.2-mingw81_64/include\"",
         "-I\"${workspaceFolder}/deps/qtbase-5.15.2-mingw81_64/include/QtCore\"",
@@ -49,7 +51,14 @@
       "type": "shell",
       "label": "Run bindgen",
       "command": "./ENV/Scripts/python",
-      "args": ["./src/bindgen.py", "${workspaceFolder}/deps/krita/libs/libkis"],
+      "args": [
+        "./src/bindgen.py",
+        // Path to libkis
+        "${workspaceFolder}/deps/krita/libs/libkis",
+        // Where to output the generated files
+        "-o",
+        "${workspaceFolder}/src/loader/libkis"
+      ],
       "options": {
         "cwd": "${workspaceFolder}/tools/bindgen"
       },
