@@ -2,7 +2,9 @@
 
 bindgen is a Python tool for generating:
 
-- Custom headers for `libkis` to allow krita.js to call `libkis` from C++. These headers allow us to purposely ignore any third-party dependencies and problematic includes (such as `KoColorSpaceMaths.h`). See [this PR](https://github.com/tommyquant/krita.js/pull/4) for more info.
+- Custom headers for `libkis` to allow krita.js to call `libkis` from C++. These headers do a few things:
+  - Allow us to purposely ignore any third-party dependencies and problematic includes such as `KoColorSpaceMaths.h` and CMake's auto-generated `kritalibkis_export.h`. See [this PR](https://github.com/tommyquant/krita.js/pull/4) for more info.
+  - Simplify which headers we actually need to include. Some classes can be forward declared which means we don't need to include them.
 - `libkis` to JavaScript bindings
 - `libkis` TypeScript types
 
