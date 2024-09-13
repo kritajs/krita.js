@@ -64,6 +64,24 @@
       },
       "problemMatcher": ["$gcc"],
       "detail": "Generate custom libkis headers, JS bindings and TS declaration files."
+    },
+    {
+      "type": "shell",
+      "label": "Run bindgen-ts",
+      "command": "./ENV/Scripts/python",
+      "args": [
+        "./src/bindgen-ts.py",
+        // Path to Krita source
+        "${workspaceFolder}/deps/krita",
+        // Where to output the generated files
+        "-o",
+        "${workspaceFolder}/src/loader/libkis"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/tools/bindgen"
+      },
+      "problemMatcher": ["$gcc"],
+      "detail": "Generate custom libkis headers, JS bindings and TS declaration files."
     }
   ],
   "version": "2.0.0"
