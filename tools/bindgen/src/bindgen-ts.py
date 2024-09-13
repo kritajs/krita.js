@@ -8,7 +8,32 @@ from parse import parse, webrepr
 from preprocess import preprocess
 from utils import write_file
 from cxxheaderparser.simple import ClassScope
-from Class import Class
+from Class import Class, getPlainClassName, get_ts_ready_class
+
+# c++ type: [ts type, path to import from if any]
+type_matching_dict = {
+    "qreal":        ["number",  ""],
+    "bool":         ["boolean", ""],
+    "void":         ["void",    ""],
+    "qint8":        ["number",  ""],
+    "qint16":       ["number",  ""],
+    "qint32":       ["number",  ""],
+    "qint64":       ["number",  ""],
+    "qintptr":      ["number",  ""],
+    "qlonglong":    ["number",  ""],
+    "qptrdiff":     ["number",  ""],
+    "qsizetype":    ["number",  ""],
+    "quint8" :      ["number",  ""],
+    "quint16":      ["number",  ""],
+    "quint32":      ["number",  ""],
+    "quint64":      ["number",  ""],
+    "quintptr":     ["number",  ""],
+    "qulonglong":   ["number",  ""],
+    "uchar":        ["string",  ""],
+    "uint":         ["number",  ""],
+    "ulong":        ["number",  ""],
+    "ushort":       ["number",  ""]
+}
 
 def main():
     parser = argparse.ArgumentParser()
@@ -35,37 +60,21 @@ def main():
         # It also depends on boost and other non-libkis headers
         "PresetChooser.h"
     ]
+    i = 0
     headers = filter(lambda h: Path(h).name not in ignore, headers)
-    classNames = []
     for header in headers:
         file_path = krita_dir / header
         if file_path.name == "libkis.h":
             shutil.copy2(file_path, output_dir)
-            return
+            continue
         source_code = file_path.read_text()
         preprocessed = preprocess(source_code) 
         parsed_data = parse(preprocessed)
-        base_class_includes: set[str] = set()
         for c in parsed_data.namespace.classes:
-            (output, _base_class_includes) = Class(c)
-            base_class_includes = _base_class_includes
-            classNames.append(output)
-            print(output)
-        
-
-    # with the headers, first construct a list that will get all of the exported type first
-    # header = headers[0]
-    # # libkis.h is a common file included by most of the other libkis headers.
-    # # It contains a bunch of Qt includes and forward declarations of other libkis
-    # # classes. We don't need to parse it -- just copy it as-is.
-
-    # print("Generating files for " + str(file_path) + "...")
-    # source_code = file_path.read_text()
-
-    # # cxxheaderparser can't parse certain preprocessor directives so we preprocess first
-    # preprocessed = preprocess(source_code) 
-    # parsed_data = parse(preprocessed)
-    # generated_header = generate_ts(parsed_data)
+            # className = getPlainClassName(c)
+            # we add in types that we can use which are from the same dir
+            # type_matching_dict[className] = className
+            get_ts_ready_class(c)
 
     # # write_file(output_dir / file_path.name.replace(".h", "_pp.h"), preprocessed)
     # # write_file(output_dir / (file_path.name + ".r"), webrepr(parsed_data))
