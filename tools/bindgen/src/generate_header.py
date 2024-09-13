@@ -27,6 +27,7 @@ def Template(
 // Instead of determining which forward declarations we need on a per-file basis, just forward declare
 // everything we might need.
 class ColorizeMask;
+class DockPosition;
 class FilterMask;
 class KisImageSP;
 class KisNodeSP;
@@ -125,7 +126,6 @@ def generate_header(data: ParsedData) -> str:
             includes.add(f"#include <{include}>")
         else:
             includes.add(f"#include \"{include}.h\"")
-
 
     return Template(
         "\n".join(includes),

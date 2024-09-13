@@ -53,8 +53,8 @@
       "command": "./ENV/Scripts/python",
       "args": [
         "./src/bindgen.py",
-        // Path to libkis
-        "${workspaceFolder}/deps/krita/libs/libkis",
+        // Path to Krita source
+        "${workspaceFolder}/deps/krita",
         // Where to output the generated files
         "-o",
         "${workspaceFolder}/src/loader/libkis"
