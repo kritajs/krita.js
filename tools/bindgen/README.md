@@ -14,7 +14,7 @@ bindgen uses [pcpp](https://github.com/ned14/pcpp) for preprocessing and [cxxhea
 
 First, you'll need the following:
 
-- [Krita source](https://invent.kde.org/graphics/krita) - clone this into `krita.js/deps`
+- [Krita source](https://invent.kde.org/graphics/krita) - clone the tag v5.2.3 (the latest release as of this update to the README.md) into `krita.js/deps`
 - [Python](https://www.python.org/)
 
 Next, run the following commands:
@@ -25,9 +25,9 @@ python -m venv ENV --upgrade-deps
 
 # Activate the virtual environment
 # (if using PowerShell)
-ENV\Scripts\Activate
+ENV\Scripts\Activate.ps1
 # (if using cmd)
-ENV\Scripts\activate
+ENV\Scripts\activate.bat
 
 # Install dependencies
 pip install -r requirements.txt
