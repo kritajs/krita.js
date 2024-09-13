@@ -56,3 +56,69 @@ public:
 """
 
     return (output, base_class_includes)
+
+def getPlainClassName(c: ClassScope) -> str:
+
+    # Construct class declaration
+    class_decl = c.class_decl.typename.format()
+    for method in c.methods:
+        # remove constructors
+        if (method.constructor): continue
+        # remove private access method - not sure if it should just be a string check against 'private' instead
+        if (method.access != "public"): continue
+
+        if (class_decl.split(" ")[1] != "View"): continue
+        
+        #ignore ones that start with ~ or operator or has no name
+        if method.name.format() == [] or method.name.format().startswith("~") or method.name.format().startswith("operator"): 
+            continue
+
+        print(method.name.format())        
+
+        if method.parameters == []:
+            print("no parameters needed")
+        else:
+            for parameter in method.parameters:
+                # remove pointer and reference signs FOR NOW -> NEED TO REVIEW THIS LATER
+                print(parameter.format().replace("*", "").replace("&", ""))
+
+        if (method.return_type == None): continue
+        print(method.return_type.format().replace("*", "").replace("&", ""))
+        print("\n")
+    return class_decl.split(" ")[1]
+
+def get_ts_ready_class(c: ClassScope) -> object:
+    class_decl = c.class_decl.typename.format() # class name
+    methods: list[TS_Method] = [] # each method should have (1) name; (2) params; (3) return type
+    for method in c.methods:
+        # ignore constructors
+        if (method.constructor): continue
+        # ignore private access method
+        if (method.access == "private"): continue
+        # ignore methods with names that start with ~ or operator or has no name
+        if (method.name.format() == [] or 
+            method.name.format().startswith("~") or 
+            method.name.format().startswith("operator")): 
+            continue
+        method_name = method.name.format()
+        method_params = []
+        if method.parameters != []:
+            for parameter in method.parameters:
+                # remove pointer and reference signs and reformat to TS standard
+                formatted_parameter = parameter.format().replace("*", "").replace("&", "").split(" ")
+                method_params.append(formatted_parameter[1] + ': ' + formatted_parameter[0])
+        method_return_type = method.return_type.format().replace("*", "").replace("&", "")
+        # print("\n")
+        methods.append(TS_Method(method_name, method_params, method_return_type))
+        return TS_Ready_Class(class_decl, methods)
+
+class TS_Method:
+    def __init__(self, name: str, params: list, return_type: str):
+        self.name = name
+        self.params = params
+        self.return_type = return_type
+
+class TS_Ready_Class:
+    def __init__(self, name: str, methods: list[TS_Method]):
+        self.name = name
+        self.methods = methods
