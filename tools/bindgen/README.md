@@ -7,6 +7,9 @@ bindgen is a Python tool for generating:
   - Simplify which headers we actually need to include. Bindgen forward declares classes where possible instead of including which reduces nested includes and their dependencies.
 - `libkis` to JavaScript bindings
 - `libkis` TypeScript types
+  - It generates a counterpart in `d.ts` file format. 
+  - NOTE: while we are working on Javascript binding, we have yet to test the type files. Please bear with us in the meantime.
+  - This tool assumes that - (1) each `.h` file contains only a single class; (2) constructors are unnecessary
 
 bindgen uses [pcpp](https://github.com/ned14/pcpp) for preprocessing and [cxxheaderparser](https://github.com/robotpy/cxxheaderparser) to parse headers. bindgen then uses the parsed output to generate the above.
 

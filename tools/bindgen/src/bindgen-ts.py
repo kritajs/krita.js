@@ -6,9 +6,9 @@ from pathlib import Path
 from generate_ts import generate_ts
 from parse import parse, webrepr
 from preprocess import preprocess
-from utils import write_file
+from utils import write_file, delete_file
 from cxxheaderparser.simple import ClassScope
-from Class import Class, getPlainClassName, get_ts_ready_class
+from TS_Class import get_plain_class_name, get_ts_ready_class
 
 # c++ type: [ts type, path to import from if any]
 type_matching_dict = {
@@ -32,7 +32,9 @@ type_matching_dict = {
     "uchar":        ["string",  ""],
     "uint":         ["number",  ""],
     "ulong":        ["number",  ""],
-    "ushort":       ["number",  ""]
+    "ushort":       ["number",  ""],
+    "int":          ["number",  ""],
+    "long":         ["number",  ""],
 }
 
 def main():
@@ -60,7 +62,7 @@ def main():
         # It also depends on boost and other non-libkis headers
         "PresetChooser.h"
     ]
-    i = 0
+    ts_ready_class_list = []
     headers = filter(lambda h: Path(h).name not in ignore, headers)
     for header in headers:
         file_path = krita_dir / header
@@ -70,14 +72,17 @@ def main():
         source_code = file_path.read_text()
         preprocessed = preprocess(source_code) 
         parsed_data = parse(preprocessed)
-        for c in parsed_data.namespace.classes:
-            # className = getPlainClassName(c)
-            # we add in types that we can use which are from the same dir
-            # type_matching_dict[className] = className
-            get_ts_ready_class(c)
+        
+        print("Generating files for " + str(file_path) + "...")
 
-    # # write_file(output_dir / file_path.name.replace(".h", "_pp.h"), preprocessed)
-    # # write_file(output_dir / (file_path.name + ".r"), webrepr(parsed_data))
-    # write_file(output_dir / (file_path.name + ".d.ts"), generated_header)
+        for c in parsed_data.namespace.classes:
+            className = get_plain_class_name(c)
+            # we add in types that we can use which are from the same dir
+            type_matching_dict[className] = [className, header]
+            ts_ready_class_list.append(get_ts_ready_class(c, file_path.name))
+
+    for ts_ready_class in ts_ready_class_list:
+        generated_ts = generate_ts(ts_ready_class, type_matching_dict)
+        write_file(output_dir / (ts_ready_class.file_name.replace('.h', '') + ".d.ts"), generated_ts)
 
 main()
