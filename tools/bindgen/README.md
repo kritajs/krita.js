@@ -14,7 +14,7 @@ bindgen uses [pcpp](https://github.com/ned14/pcpp) for preprocessing and [cxxhea
 
 First, you'll need the following:
 
-- [Krita source](https://invent.kde.org/graphics/krita) - clone the tag v5.2.3 (the latest release as of this update to the README.md) into `krita.js/deps`
+- [Krita source](https://invent.kde.org/graphics/krita) - clone into `krita.js/deps` the version with the tag v5.2.3, which is the latest version at the time of writing
 - [Python](https://www.python.org/)
 
 Next, run the following commands:
