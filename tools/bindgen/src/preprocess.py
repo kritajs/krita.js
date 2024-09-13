@@ -32,6 +32,7 @@ class CustomPreprocessor(Preprocessor):
         patterns = [
             # Auto-generated export define
             r"KRITALIBKIS_EXPORT",
+            r"KRITAFLAKE_EXPORT",
             # Qt macros
             r"Q_OBJECT",
             r"Q_SLOTS",
@@ -55,7 +56,7 @@ class CustomPreprocessor(Preprocessor):
     def on_comment(self, tok):
         return True
 
-def preprocess(file_name: str, source_code: str) -> str:
+def preprocess(source_code: str) -> str:
     pp = CustomPreprocessor()
-    preprocessed = pp.parse(source_code, file_name)
+    preprocessed = pp.parse(source_code)
     return preprocessed
