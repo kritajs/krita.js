@@ -1,7 +1,6 @@
 from cxxheaderparser.simple import ClassScope, ParsedData
 from TS_Class import TS_Ready_Class
-
-INDENT = "    "
+import re
 
 # ==================================================================================
 
@@ -35,31 +34,46 @@ export = {ts_class.name}
 # Add mapping between types:
 # existing js types - number, string, boolean
 # if there is no matching type, check the rest of the files to see if you can find an export with the same name
-# if not, then print it out into the console
 # ==================================================================================
 
 def generate_ts(data: TS_Ready_Class, type_matching_dict: dict[str, list[str]]) -> str:
-    import_statements : set[str] = set() 
-    # if the ts_ready_class has any params or return types that match the type_matching_dict
-    # replace the string with the value and add import statement location if there is one
-    # except itself
-
-    def add_import_statements(type_to_check: str, obj: object):
-        matching_entry = type_matching_dict[getattr(obj, type_to_check)]
-        setattr(obj, type_to_check, matching_entry[0])
-        if (matching_entry[1] != "" and getattr(obj, type_to_check) != data.name): # matching_entry[1] is the location of the file to import from
-            import_statements.add(f"import {getattr(obj, type_to_check)} from \"./{getattr(obj, type_to_check)}\";")
+    import_statements : set[str] = set()
 
     for method in data.methods:
         # check the type of the param
         for param in method.params:
-            if param.type in type_matching_dict:
-                add_import_statements("type", param)
+            main_type: str = param.type
+            sub_type: str = ""
+            # check if it's a case where a class is buried within a <> tag
+            # split the parameter into parts -> main type and inner type
+            m = re.search("(<\w+>)", main_type)
+            if (m != None):
+                # remove m from main_type
+                main_type = main_type.replace(m.group(0), "")
+                # replace sub type
+                sub_type = (m.group(0).replace("<", "").replace(">", ""))
+                if sub_type in type_matching_dict:
+                    valid_replacement = type_matching_dict[sub_type]
+                    sub_type = valid_replacement[0]
+                    if (valid_replacement[1] != "" and sub_type != data.name):
+                        import_statements.add(f"import {sub_type} from \"./{sub_type}\";")
+
+            if main_type in type_matching_dict:
+                valid_replacement = type_matching_dict[main_type]
+
+                main_type = valid_replacement[0]
+                if (valid_replacement[1] != "" and main_type != data.name): # matching_entry[1] is the location of the file to import from
+                    import_statements.add(f"import {main_type} from \"./{main_type}\";")
+            
+            # replace param.type altogether
+            param.type = main_type if sub_type == "" else f"{main_type}<{sub_type}>"
     
         # check the type of the return type
         if method.return_type in type_matching_dict:
-            add_import_statements("return_type", method)
+            matching_entry = type_matching_dict[method.return_type]
 
-    print(import_statements)
-    
+            method.return_type = matching_entry[0]
+            if (matching_entry[1] != "" and method.return_type != data.name): # matching_entry[1] is the location of the file to import from
+                import_statements.add(f"import {method.return_type} from \"./{method.return_type}\";")
+
     return Template(data, "\n".join(list(import_statements)))
