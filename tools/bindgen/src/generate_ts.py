@@ -42,19 +42,24 @@ def generate_ts(data: TS_Ready_Class, type_matching_dict: dict[str, list[str]]) 
     import_statements : set[str] = set() 
     # if the ts_ready_class has any params or return types that match the type_matching_dict
     # replace the string with the value and add import statement location if there is one
+    # except itself
+
+    def add_import_statements(type_to_check: str, obj: object):
+        matching_entry = type_matching_dict[getattr(obj, type_to_check)]
+        setattr(obj, type_to_check, matching_entry[0])
+        if (matching_entry[1] != "" and getattr(obj, type_to_check) != data.name): # matching_entry[1] is the location of the file to import from
+            import_statements.add(f"import {getattr(obj, type_to_check)} from \"./{getattr(obj, type_to_check)}\";")
+
     for method in data.methods:
         # check the type of the param
         for param in method.params:
             if param.type in type_matching_dict:
-                # replace the value type with the equivalent in ts
-                matching_entry = type_matching_dict[param.type]
-                param.type = matching_entry[0]
-                if (matching_entry[1] != ""): # matching_entry[1] is the location of the file to import from
-                    import_statements.add(f"import {param.type} from \"./{param.type}\";")
+                add_import_statements("type", param)
     
-        # check the type of the output
+        # check the type of the return type
         if method.return_type in type_matching_dict:
-            method.return_type = type_matching_dict[method.return_type][0]
+            add_import_statements("return_type", method)
+
     print(import_statements)
     
     return Template(data, "\n".join(list(import_statements)))
