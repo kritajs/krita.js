@@ -8,7 +8,7 @@ from parse import parse, webrepr
 from preprocess import preprocess
 from utils import write_file, delete_file
 from cxxheaderparser.simple import ClassScope
-from TS_Class import get_plain_class_name, get_ts_ready_class
+from TS_Class import get_plain_class_name, create_ts_ready_class
 
 # c++ type: [ts type, path to import from if any]
 type_matching_dict = {
@@ -35,6 +35,7 @@ type_matching_dict = {
     "ushort":       ["number",  ""],
     "int":          ["number",  ""],
     "long":         ["number",  ""],
+    "float":        ["number",  ""],
 }
 
 def main():
@@ -79,7 +80,7 @@ def main():
             className = get_plain_class_name(c)
             # we add in types that we can use which are from the same dir
             type_matching_dict[className] = [className, header]
-            ts_ready_class_list.append(get_ts_ready_class(c, file_path.name))
+            ts_ready_class_list.append(create_ts_ready_class(c, file_path.name))
 
     for ts_ready_class in ts_ready_class_list:
         generated_ts = generate_ts(ts_ready_class, type_matching_dict)

@@ -35,7 +35,7 @@ class TS_Ready_Class:
     {"\n\t".join(methods)}
 }}"""
 
-def trim_cpp_unique(phrase: str) -> str:
+def remove_cpp_unique_syntax(phrase: str) -> str:
     return phrase.replace("*", "").replace("&", "").replace("const", "").strip()
 
 def get_plain_class_name(c: ClassScope) -> str:
@@ -45,7 +45,7 @@ def get_plain_class_name(c: ClassScope) -> str:
     return class_decl.split(" ")[1]
 
 ### file_name is where the imported type will be imported from
-def get_ts_ready_class(c: ClassScope, file_name: str) -> TS_Ready_Class:
+def create_ts_ready_class(c: ClassScope, file_name: str) -> TS_Ready_Class:
     class_decl = get_plain_class_name(c) # class name
     methods: list[TS_Method] = [] 
     # each method should have (1) name; (2) params; (3) return type
@@ -64,8 +64,8 @@ def get_ts_ready_class(c: ClassScope, file_name: str) -> TS_Ready_Class:
         if method.parameters != []:
             for parameter in method.parameters:
                 # remove pointer and reference signs and reformat to TS standard
-                formatted_parameter = trim_cpp_unique(parameter.format()).split(" ")
+                formatted_parameter = remove_cpp_unique_syntax(parameter.format()).split(" ")
                 method_params.append(TS_Param(formatted_parameter[1],formatted_parameter[0]))
-        method_return_type = trim_cpp_unique(method.return_type.format())
+        method_return_type = remove_cpp_unique_syntax(method.return_type.format())
         methods.append(TS_Method(method_name, method_params, method_return_type))
     return TS_Ready_Class(class_decl, methods, file_name)
