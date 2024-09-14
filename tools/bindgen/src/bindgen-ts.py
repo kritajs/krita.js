@@ -36,6 +36,7 @@ type_matching_dict = {
     "int":          ["number",  ""],
     "long":         ["number",  ""],
     "float":        ["number",  ""],
+    "double":       ["number",  ""]
 }
 
 def main():
