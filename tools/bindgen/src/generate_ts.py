@@ -22,6 +22,8 @@ def Template(
 // Instead of determining which forward declarations we need on a per-file basis, just forward declare
 // everything we might need.
 
+{import_statements}
+
 export as namespace {ts_class.name}
 
 export = {ts_class.name}
@@ -37,7 +39,7 @@ export = {ts_class.name}
 # ==================================================================================
 
 def generate_ts(data: TS_Ready_Class, type_matching_dict: dict[str, list[str]]) -> str:
-    import_statements : set[str] = [] 
+    import_statements : set[str] = set() 
     # if the ts_ready_class has any params or return types that match the type_matching_dict
     # replace the string with the value and add import statement location if there is one
     for method in data.methods:
@@ -48,10 +50,11 @@ def generate_ts(data: TS_Ready_Class, type_matching_dict: dict[str, list[str]]) 
                 matching_entry = type_matching_dict[param.type]
                 param.type = matching_entry[0]
                 if (matching_entry[1] != ""): # matching_entry[1] is the location of the file to import from
-                    import_statements.append(f"import {param.type} from {matching_entry[1]};")
+                    import_statements.add(f"import {param.type} from \"./{param.type}\";")
     
         # check the type of the output
         if method.return_type in type_matching_dict:
             method.return_type = type_matching_dict[method.return_type][0]
+    print(import_statements)
     
     return Template(data, "\n".join(list(import_statements)))
