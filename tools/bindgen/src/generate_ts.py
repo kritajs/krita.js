@@ -69,11 +69,23 @@ def generate_ts(data: TS_Ready_Class, type_matching_dict: dict[str, list[str]]) 
             param.type = main_type if sub_type == "" else f"{main_type}<{sub_type}>"
     
         # check the type of the return type
-        if method.return_type in type_matching_dict:
-            matching_entry = type_matching_dict[method.return_type]
-
-            method.return_type = matching_entry[0]
-            if (matching_entry[1] != "" and method.return_type != data.name): # matching_entry[1] is the location of the file to import from
-                import_statements.add(f"import {method.return_type} from \"./{method.return_type}\";")
+        main_return_type = method.return_type
+        sub_return_type = ""
+        match_sub_return_type = re.search("(<\w+>)", main_return_type)
+        if (match_sub_return_type != None):
+            main_return_type = main_return_type.replace(match_sub_return_type.group(0), "")
+            sub_return_type = match_sub_return_type.group(0).replace("<", "").replace(">", "")
+            if (sub_return_type in type_matching_dict):
+                valid_replacement = type_matching_dict[sub_return_type]
+                sub_return_type = valid_replacement[0]
+                if (valid_replacement[1] != "" and sub_return_type != data.name):
+                    import_statements.add(f"import {sub_return_type} from \"./{sub_return_type}\";")
+        if main_return_type in type_matching_dict:
+            valid_replacement = type_matching_dict[method.return_type]
+            main_return_type = valid_replacement[0]
+            if (valid_replacement[1] != "" and main_return_type != data.name): # matching_entry[1] is the location of the file to import from
+                import_statements.add(f"import {main_return_type} from \"./{main_return_type}\";")
+        
+        method.return_type = main_return_type if sub_return_type == "" else f"{main_return_type}<{sub_return_type}>"
 
     return Template(data, "\n".join(list(import_statements)))
