@@ -39,52 +39,48 @@ export = {ts_class.name}
 def generate_ts(data: TS_Ready_Class, type_matching_dict: dict[str, list[str]]) -> str:
     import_statements : set[str] = set()
 
+    def update_type_for_import(value_to_update: str):
+        valid_replacement = type_matching_dict[value_to_update]
+        value_to_update = valid_replacement[0]
+        if (valid_replacement[1] != "" and value_to_update != data.name):
+            import_statements.add(f"import {value_to_update} from \"./{value_to_update}\";")
+        return value_to_update
+
     for method in data.methods:
         # check the type of the param
         for param in method.params:
-            main_type: str = param.type
-            sub_type: str = ""
             # check if it's a case where a class is buried within a <> tag
             # split the parameter into parts -> main type and inner type
-            m = re.search("(<\w+>)", main_type)
-            if (m != None):
-                # remove m from main_type
-                main_type = main_type.replace(m.group(0), "")
-                # replace sub type
-                sub_type = (m.group(0).replace("<", "").replace(">", ""))
+            main_type = param.type
+            sub_type = ""
+            matching_param_sub_type = re.search("(<\w+>)", main_type)
+
+            if (matching_param_sub_type != None):
+                main_type = main_type.replace(matching_param_sub_type.group(0), "")
+                sub_type = matching_param_sub_type.group(0).replace("<", "").replace(">", "")
                 if sub_type in type_matching_dict:
-                    valid_replacement = type_matching_dict[sub_type]
-                    sub_type = valid_replacement[0]
-                    if (valid_replacement[1] != "" and sub_type != data.name):
-                        import_statements.add(f"import {sub_type} from \"./{sub_type}\";")
+                    sub_type = update_type_for_import(sub_type)
 
             if main_type in type_matching_dict:
-                valid_replacement = type_matching_dict[main_type]
-
-                main_type = valid_replacement[0]
-                if (valid_replacement[1] != "" and main_type != data.name): # matching_entry[1] is the location of the file to import from
-                    import_statements.add(f"import {main_type} from \"./{main_type}\";")
+                main_type = update_type_for_import(main_type)
             
             # replace param.type altogether
             param.type = main_type if sub_type == "" else f"{main_type}<{sub_type}>"
-    
+        
+        # ====================================================================================================
         # check the type of the return type
         main_return_type = method.return_type
         sub_return_type = ""
         match_sub_return_type = re.search("(<\w+>)", main_return_type)
+
         if (match_sub_return_type != None):
             main_return_type = main_return_type.replace(match_sub_return_type.group(0), "")
             sub_return_type = match_sub_return_type.group(0).replace("<", "").replace(">", "")
             if (sub_return_type in type_matching_dict):
-                valid_replacement = type_matching_dict[sub_return_type]
-                sub_return_type = valid_replacement[0]
-                if (valid_replacement[1] != "" and sub_return_type != data.name):
-                    import_statements.add(f"import {sub_return_type} from \"./{sub_return_type}\";")
+                sub_return_type = update_type_for_import(sub_return_type)
+
         if main_return_type in type_matching_dict:
-            valid_replacement = type_matching_dict[method.return_type]
-            main_return_type = valid_replacement[0]
-            if (valid_replacement[1] != "" and main_return_type != data.name): # matching_entry[1] is the location of the file to import from
-                import_statements.add(f"import {main_return_type} from \"./{main_return_type}\";")
+            main_return_type = update_type_for_import(main_return_type)
         
         method.return_type = main_return_type if sub_return_type == "" else f"{main_return_type}<{sub_return_type}>"
 
