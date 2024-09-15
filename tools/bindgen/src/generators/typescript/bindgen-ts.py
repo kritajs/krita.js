@@ -68,8 +68,16 @@ def main():
         # It also depends on boost and other non-libkis headers
         "PresetChooser.h"
     ]
-    ts_ready_class_list = []
-    headers = filter(lambda h: Path(h).name not in ignore, headers)
+
+    headers = list(filter(lambda h: Path(h).name not in ignore, headers))
+    
+    def add_library_class_to_type_matching_dict(header_file_path):
+        class_type = Path(header_file_path).stem
+        type_matching_dict[class_type] = [class_type, class_type]
+
+    for header in headers:
+        add_library_class_to_type_matching_dict(header)
+
     for header in headers:
         file_path = krita_dir / header
         if file_path.name == "libkis.h":
@@ -79,16 +87,11 @@ def main():
         preprocessed = preprocess(source_code) 
         parsed_data = parse(preprocessed)
         
-        print("Generating files for " + str(file_path) + "...")
+        print("Generating typescript type declaration file for " + str(file_path) + "...")
 
-        for c in parsed_data.namespace.classes:
-            className = get_plain_class_name(c)
-            # we add in types that we can use which are from the same dir
-            type_matching_dict[className] = [className, header]
-            ts_ready_class_list.append(create_ts_ready_class(c, file_path.name))
-
-    for ts_ready_class in ts_ready_class_list:
-        generated_ts = generate_ts(ts_ready_class, type_matching_dict)
-        write_file(output_dir / (ts_ready_class.file_name.replace('.h', '') + ".d.ts"), generated_ts)
+        # pass type_matching_dict and header list for the generate ts
+        ts_class = create_ts_ready_class(parsed_data.namespace.classes[0], file_path.name)
+        generated_ts = generate_ts(ts_class, type_matching_dict)
+        write_file(output_dir / (ts_class.file_name.replace('.h', '') + ".d.ts"), generated_ts)
 
 main()
