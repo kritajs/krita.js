@@ -8,7 +8,7 @@ bindgen is a Python tool for generating:
   - Removes Qt macros so that we don't need to use `moc` (a Qt build tool) to compile the headers.
 - `libkis` to JavaScript bindings
 - `libkis` TypeScript types
-  - It generates a counterpart in `d.ts` file format. 
+  - It generates a counterpart in `d.ts` file format.
   - NOTE: while we are working on Javascript binding, we have yet to test the type files. Please bear with us in the meantime. It also does not add import statements.
   - This tool assumes that - (1) each `.h` file contains only a single class; (2) constructors are unnecessary
 
@@ -16,10 +16,7 @@ bindgen uses [pcpp](https://github.com/ned14/pcpp) for preprocessing and [cxxhea
 
 ## Getting started
 
-First, you'll need the following:
-
-- [Krita source](https://invent.kde.org/graphics/krita) - clone into `krita.js/deps`. Check out tag v5.2.3, which is the latest version of Krita at the time of writing.
-- [Python](https://www.python.org/)
+First, you'll need to install [Python](https://www.python.org/).
 
 Next, run the following commands:
 
