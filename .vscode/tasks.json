@@ -2,59 +2,22 @@
   "tasks": [
     {
       "type": "cppbuild",
-      "label": "Build loader.dll",
-      "command": "g++",
-      "args": [
-        "-fdiagnostics-color=always",
-        // Disable warnings
-        "-w",
-        // Krita
-        "-L\"C:/Program Files/Krita (x64)/bin\"",
-        "-llibkritalibkis",
-        // Qt
-        "-I\"${workspaceFolder}/deps/qt/include\"",
-        "-I\"${workspaceFolder}/deps/qt/include/QtCore\"",
-        "-I\"${workspaceFolder}/deps/qt/include/QtGui\"",
-        "-I\"${workspaceFolder}/deps/qt/include/QtWidgets\"",
-        "-lQt5Core",
-        "-lQt5Gui",
-        "-lQt5Widgets",
-        // Ultralight
-        "-I\"${workspaceFolder}/deps/ultralight-sdk-1.3.0/include\"",
-        "-L\"${workspaceFolder}/deps/ultralight-sdk-1.3.0/bin\"",
-        "-lAppCore",
-        "-lUltralight",
-        "-lUltralightCore",
-        "-lWebCore",
-        // krita.js
-        "-I\"${workspaceFolder}/src/loader/libkis\"",
-        // Flag to create a dynamic library (for example, a .dll) instead of an executable
-        "-shared",
-        // Outputs temporary build files such as object files (.o). Useful for checking name mangling.
-        "-save-temps=obj",
-        // Specify output directory
-        "-o",
-        "${workspaceFolder}/src/plugin/kritajs/bin/kritajs.dll",
-        // The input source file(s)
-        "${workspaceFolder}/src/loader/loader.cpp"
-      ],
-      "options": {
-        "cwd": "${fileDirname}"
-      },
+      "label": "Build plugin",
+      "command": "cmake",
+      "args": ["--build", "build"],
       "problemMatcher": ["$gcc"],
       "group": {
         "kind": "build",
         "isDefault": true
       },
-      "detail": "Build the loader DLL used to initialize krita.js"
+      "detail": "Build the krita.js plugin"
     },
     {
       "type": "shell",
-      "label": "Inspect opened object (.o) file",
-      "command": "llvm-nm",
-      "args": ["${file}"],
-      "problemMatcher": ["$gcc"],
-      "detail": "Inspect opened object (.o) file. Useful for checking how symbol names are mangled."
+      "label": "Generate build project",
+      "command": "cmake -B build -G 'MinGW Makefiles'",
+      "detail": "Build the loader DLL used to initialize krita.js",
+      "problemMatcher": []
     },
     {
       "type": "shell",
@@ -62,16 +25,13 @@
       "command": "./ENV/Scripts/python",
       "args": [
         "./src/bindgen.py",
-        // Path to Krita source
         "${workspaceFolder}/deps/krita",
-        // Where to output the generated files
         "-o",
-        "${workspaceFolder}/src/loader/libkis"
+        "${workspaceFolder}/src/kritajs/libkis"
       ],
       "options": {
         "cwd": "${workspaceFolder}/tools/bindgen"
       },
-      "problemMatcher": ["$gcc"],
       "detail": "Generate custom libkis headers."
     },
     {
@@ -80,11 +40,9 @@
       "command": "./ENV/Scripts/python",
       "args": [
         "./src/generators/typescript/bindgen-ts.py",
-        // Path to Krita source
         "${workspaceFolder}/deps/krita",
-        // Where to output the generated files
         "-o",
-        "${workspaceFolder}/src/loader/libkis"
+        "${workspaceFolder}/src/kritajs/libkis"
       ],
       "options": {
         "cwd": "${workspaceFolder}/tools/bindgen"

@@ -1,7 +1,0 @@
-{
-  "Id": "krita.js Plugin Manager",
-  "Type": "Service",
-  "X-KDE-Library": "kritajs",
-  "X-KDE-ServiceTypes": ["Krita/ApplicationPlugin"],
-  "X-Krita-Version": "28"
-}

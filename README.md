@@ -73,12 +73,18 @@ This will build `kritajs.dll` into the `build` directory. Copy this file into `C
 
 ### Using symlinks
 
-When developing krita.js, it's useful to create a symlink for `kritajs.dll`. This removes the need to copy the plugin to the Krita plugin folder every time you build.
+When developing krita.js, it's useful to create symlinks from the Krita plugin folder to the built plugin. This removes the need to copy the plugin to the Krita plugin folder every time you build.
 
 To create symlinks on Windows, run the commands below in a command prompt (not PowerShell). You may need to run the command prompt as an administrator.
 
-Create symlink to `kritajs.dll` file:
+Create symlink to `kritajs` folder:
 
 ```
-mklink /H "C:\Program Files\Krita (x64)\lib\kritaplugins\kritajs.dll" "absolute\path\to\krita.js\build\kritajs.dll"
+mklink /D "C:\Users\myuser\AppData\Roaming\krita\pykrita\kritajs" "absolute\path\to\krita.js\src\plugin\kritajs"
+```
+
+Create symlink to `kritajs.desktop` file:
+
+```
+mklink /H "C:\Users\myuser\AppData\Roaming\krita\pykrita\kritajs.desktop" "absolute\path\to\krita.js\src\plugin\kritajs.desktop"
 ```
