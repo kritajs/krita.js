@@ -8,6 +8,9 @@ bindgen is a Python tool for generating:
   - Removes Qt macros so that we don't need to use `moc` (a Qt build tool) to compile the headers.
 - `libkis` to JavaScript bindings
 - `libkis` TypeScript types
+  - It generates a counterpart in `d.ts` file format. 
+  - NOTE: while we are working on Javascript binding, we have yet to test the type files. Please bear with us in the meantime. It also does not add import statements.
+  - This tool assumes that - (1) each `.h` file contains only a single class; (2) constructors are unnecessary
 
 bindgen uses [pcpp](https://github.com/ned14/pcpp) for preprocessing and [cxxheaderparser](https://github.com/robotpy/cxxheaderparser) to parse headers. bindgen then uses the parsed output to generate the above.
 
@@ -34,7 +37,7 @@ ENV\Scripts\activate.bat
 pip install -r requirements.txt
 ```
 
-To run bindgen, use the **Run bindgen** task in VS Code.
+To run bindgen, use the **Run bindgen** task in VS Code. To run the TS version, use the **Run bindgen-ts** task instead.
 
 ## Developing bindgen
 
