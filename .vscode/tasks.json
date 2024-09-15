@@ -70,7 +70,7 @@
       "label": "Run bindgen-ts",
       "command": "./ENV/Scripts/python",
       "args": [
-        "./src/bindgen-ts.py",
+        "./src/generators/typescript/bindgen-ts.py",
         // Path to Krita source
         "${workspaceFolder}/deps/krita",
         // Where to output the generated files

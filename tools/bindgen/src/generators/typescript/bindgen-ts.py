@@ -4,11 +4,15 @@ import shutil
 from pathlib import Path
 
 from generate_ts import generate_ts
-from parse import parse, webrepr
-from preprocess import preprocess
-from utils import write_file, delete_file
-from cxxheaderparser.simple import ClassScope
-from TS_Class import get_plain_class_name, create_ts_ready_class
+from ts_class import get_plain_class_name, create_ts_ready_class
+
+import sys
+parent_dir = str(Path().resolve().parents[0])
+sys.path.insert(0, parent_dir)
+
+from bindgen.src.parse import parse
+from bindgen.src.preprocess import preprocess
+from bindgen.src.utils import write_file
 
 # c++ type: [ts type, path to import from if any]
 type_matching_dict = {

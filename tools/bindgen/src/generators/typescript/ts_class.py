@@ -31,9 +31,10 @@ class TS_Ready_Class:
         methods = []
         for method in self.methods:
             methods.append(str(method))
-        return f"""declare class {self.name} {{
-    {"\n\t".join(methods)}
-}}"""
+        methods_joined_string = "\n\t".join(methods)
+        return """declare class {0} {{
+    {1}
+}}""".format(self.name, methods_joined_string)
 
 def remove_cpp_unique_syntax(phrase: str) -> str:
     return phrase.replace("*", "").replace("&", "").replace("const", "").strip()
