@@ -44,7 +44,7 @@ class TransparencyMask;
 
 {classes}"""
 
-=======
+# ==================================================================================
 
 def Enum(enum: EnumDecl) -> str:
     values: list[str] = []
@@ -124,7 +124,10 @@ public:
 """
 
     return (output, base_class_includes)
+
+
 # ==================================================================================
+
 def generate_header(data: ParsedData) -> str:
     # Keep any existing forward declarations
     forward_decls: set[str] = set()
