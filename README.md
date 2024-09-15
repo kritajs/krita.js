@@ -4,9 +4,10 @@ krita.js is a Krita plugin that allows users to create plugins using HTML, CSS a
 
 ## To do
 
-- [ ] Implement Ultralight prototype
-- [ ] Draw Ultralight view into QDockWidget
+- [x] Implement Ultralight prototype
+- [x] Draw Ultralight view into QDockWidget
 - [x] Figure out how to call `libkis`
+- [ ] Build krita.js as a Qt C++ plugin
 - [ ] Create JS bindings for Krita API
 - [ ] Generate .d.ts files for Krita API
 - [ ] Figure out interface for krita.js plugins

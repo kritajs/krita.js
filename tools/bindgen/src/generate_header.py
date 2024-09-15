@@ -1,4 +1,5 @@
 from cxxheaderparser.simple import ClassScope, ParsedData
+from cxxheaderparser.types import EnumDecl
 
 INDENT = "    "
 
@@ -45,6 +46,18 @@ class TransparencyMask;
 
 # ==================================================================================
 
+def Enum(enum: EnumDecl) -> str:
+    values: list[str] = []
+    for value in enum.values:
+        values.append(INDENT + value.name)
+    values = f",\n{INDENT}".join(values)
+
+    return f"""{INDENT}{enum.typename.format()}{{
+    {values}
+    }};"""
+
+# ==================================================================================
+
 def Class(c: ClassScope) -> tuple[str, set[str]]:
     base_class_includes: set[str] = set()
 
@@ -69,28 +82,40 @@ def Class(c: ClassScope) -> tuple[str, set[str]]:
         if method.constructor or method.destructor or method.operator is not None:
             continue
 
-        return_type = method.return_type.format()
         name = method.name.format()
         params = ", ".join(map(lambda param: param.format(), method.parameters))
         method_decl = INDENT
+        segments: list[str] = []
         if method.static:
-            method_decl += "static "
-        method_decl += f"{return_type} {name}({params})"
+            segments.append("static")
+        if method.virtual:
+            segments.append("virtual")
+        if method.return_type:
+            segments.append(f"{method.return_type.format()}")
+        segments.append(f"{name}({params})")
         if method.const:
-            method_decl += " const"
-        method_decl += ";"
+            segments.append("const")
+        if method.override:
+            segments.append("override")
+        method_decl += " ".join(segments) + ";"
 
         if method.access == "public":
             public_methods.append(method_decl)
         elif method.access == 'protected':
             protected_methods.append(method_decl)
-
     public = "\n".join(public_methods)
     protected = "\n".join(protected_methods)
+
+    # Extract enums. Assumes all enums are public.
+    enums: list[str] = []
+    for enum in c.enums:
+        enums.append(Enum(enum))
+    enums = "\n".join(enums)
 
     output = f"""{class_decl}
 {{
 public:
+{enums}
 {public}
 
 {"protected:" if len(protected_methods) else ""}
