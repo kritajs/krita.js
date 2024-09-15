@@ -73,7 +73,7 @@ def main():
     headers = list(filter(lambda h: Path(h).name not in ignore, headers))
     
     def add_library_class_to_type_matching_dict(header_file_path):
-        class_type = re.search(r"(\w+.h$)", header_file_path).group(0).replace(".h", "")
+        class_type = Path(header_file_path).stem
         type_matching_dict[class_type] = [class_type, class_type]
 
     for header in headers:
