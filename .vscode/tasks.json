@@ -12,10 +12,10 @@
         "-L\"C:/Program Files/Krita (x64)/bin\"",
         "-llibkritalibkis",
         // Qt
-        "-I\"${workspaceFolder}/deps/qtbase-5.15.2-mingw81_64/include\"",
-        "-I\"${workspaceFolder}/deps/qtbase-5.15.2-mingw81_64/include/QtCore\"",
-        "-I\"${workspaceFolder}/deps/qtbase-5.15.2-mingw81_64/include/QtGui\"",
-        "-I\"${workspaceFolder}/deps/qtbase-5.15.2-mingw81_64/include/QtWidgets\"",
+        "-I\"${workspaceFolder}/deps/qt/include\"",
+        "-I\"${workspaceFolder}/deps/qt/include/QtCore\"",
+        "-I\"${workspaceFolder}/deps/qt/include/QtGui\"",
+        "-I\"${workspaceFolder}/deps/qt/include/QtWidgets\"",
         "-lQt5Core",
         "-lQt5Gui",
         "-lQt5Widgets",
@@ -54,7 +54,7 @@
       "command": "llvm-nm",
       "args": ["${file}"],
       "problemMatcher": ["$gcc"],
-      "detail": "Inspect opened object (.o) file. Useful for checking how symbol names are mangled by g++."
+      "detail": "Inspect opened object (.o) file. Useful for checking how symbol names are mangled."
     },
     {
       "type": "shell",
@@ -72,7 +72,7 @@
         "cwd": "${workspaceFolder}/tools/bindgen"
       },
       "problemMatcher": ["$gcc"],
-      "detail": "Generate custom libkis headers, JS bindings and TS declaration files."
+      "detail": "Generate custom libkis headers."
     },
     {
       "type": "shell",
@@ -90,7 +90,7 @@
         "cwd": "${workspaceFolder}/tools/bindgen"
       },
       "problemMatcher": ["$gcc"],
-      "detail": "Generate custom libkis headers, JS bindings and TS declaration files."
+      "detail": "Generate TS declaration files for libkis."
     }
   ],
   "version": "2.0.0"
