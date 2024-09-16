@@ -29,7 +29,8 @@ public:
         ulDestroyString(basePath);
 
         // Use AppCore's default logger to write the log file to disk.
-        ULString logPath = ulCreateString("./ultralight.log");
+        std::string logFilePath = "/ultralight.log";
+        ULString logPath = ulCreateString((_basePath + logFilePath).c_str());
         ulEnableDefaultLogger(logPath);
         ulDestroyString(logPath);
 

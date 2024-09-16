@@ -67,6 +67,8 @@ Run the following command to build:
 cmake --build build --target install
 ```
 
+This will build and package krita.js into the `build_package` directory. To test the plugin, copy the contents of this directory into your Krita Python plugins directory.
+
 ### Using symlinks
 
 When developing krita.js, it's useful to create symlinks from the Krita plugin folder to the built plugin. This removes the need to copy the plugin to the Krita plugin folder every time you build.
