@@ -1,5 +1,11 @@
+import glob
+import shutil
 from cxxheaderparser.simple import ClassScope, ParsedData
 from cxxheaderparser.types import EnumDecl
+from pathlib import Path
+
+from generator import Generator
+from utils import write_file
 
 INDENT = "    "
 
@@ -125,35 +131,63 @@ public:
 
     return (output, base_class_includes)
 
-
 # ==================================================================================
 
-def generate_header(data: ParsedData) -> str:
-    # Keep any existing forward declarations
-    forward_decls: set[str] = set()
-    for forward_decl in data.namespace.forward_decls:
-        forward_decls.add(forward_decl.typename.format())
+class HeaderGenerator(Generator):
+    def get_file_paths(self, krita_dir: Path) -> list[str]:
+        headers = glob.glob("libs/libkis/*.h", root_dir=str(krita_dir))
+        headers += [
+            # DockWidget inherits from this
+            "libs/flake/KoCanvasObserverBase.h",
+            # DockWidgetFactoryBase inherits from this
+            "libs/flake/KoDockFactoryBase.h"
+        ]
+        ignore = [
+            # Not used by anything
+            "LibKisUtils.h",
+            # Don't think we need to expose this to JS.
+            # It also depends on boost and other non-libkis headers
+            "PresetChooser.h"
+        ]
+        headers = filter(lambda h: Path(h).name not in ignore, headers)
+        return headers
+    
+    def process(self, file_path: Path, output_dir: Path, data: ParsedData):
+        # libkis.h is a common file included by most of the other libkis headers.
+        # It contains a bunch of Qt includes and forward declarations of other libkis
+        # classes. We don't need to parse it -- just copy it as-is.
+        if file_path.name == "libkis.h":
+            shutil.copy2(str(file_path), output_dir)
+            return
 
-    # Parse classes
-    classes: list[str] = []
-    base_class_includes: set[str] = set()
-    for c in data.namespace.classes:
-        (output, _base_class_includes) = Class(c)
-        base_class_includes = _base_class_includes
-        classes.append(output)
+        print(f"""Generating header file for {file_path.name}...""")
 
-    # Format includes. Note that we only add includes for base classes.
-    # Everything else can be forward declared.
-    includes: set[str] = set()
-    for include in base_class_includes:
-        # Use angle brackets for Qt includes
-        if include.startswith("Q"):
-            includes.add(f"#include <{include}>")
-        else:
-            includes.add(f"#include \"{include}.h\"")
+        # Keep any existing forward declarations
+        forward_decls: set[str] = set()
+        for forward_decl in data.namespace.forward_decls:
+            forward_decls.add(forward_decl.typename.format())
 
-    return Template(
-        "\n".join(includes),
-        "\n".join(map(lambda name: f"{name};", forward_decls)),
-        "\n".join(classes)
-    )
+        # Parse classes
+        classes: list[str] = []
+        base_class_includes: set[str] = set()
+        for c in data.namespace.classes:
+            (output, _base_class_includes) = Class(c)
+            base_class_includes = _base_class_includes
+            classes.append(output)
+
+        # Format includes. Note that we only add includes for base classes.
+        # Everything else can be forward declared.
+        includes: set[str] = set()
+        for include in base_class_includes:
+            # Use angle brackets for Qt includes
+            if include.startswith("Q"):
+                includes.add(f"#include <{include}>")
+            else:
+                includes.add(f"#include \"{include}.h\"")
+
+        output = Template(
+            "\n".join(includes),
+            "\n".join(map(lambda name: f"{name};", forward_decls)),
+            "\n".join(classes)
+        )
+        write_file(output_dir / file_path.name, output)
