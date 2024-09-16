@@ -21,34 +21,38 @@
     },
     {
       "type": "shell",
-      "label": "Run bindgen",
+      "label": "Generate libkis headers",
       "command": "./ENV/Scripts/python",
       "args": [
         "./src/bindgen.py",
         "${workspaceFolder}/deps/krita",
         "-o",
-        "${workspaceFolder}/src/plugin/libkis"
+        "${workspaceFolder}/src/plugin/libkis",
+        "-g",
+        "header"
       ],
       "options": {
         "cwd": "${workspaceFolder}/tools/bindgen"
       },
-      "detail": "Generate custom libkis headers."
+      "detail": "Generate libkis headers"
     },
     {
       "type": "shell",
-      "label": "Run bindgen-ts",
+      "label": "Generate libkis TS declarations",
       "command": "./ENV/Scripts/python",
       "args": [
-        "./src/generators/typescript/bindgen-ts.py",
+        "./src/bindgen.py",
         "${workspaceFolder}/deps/krita",
         "-o",
-        "${workspaceFolder}/src/plugin/libkis"
+        "${workspaceFolder}/src/plugin/libkis",
+        "-g",
+        "typescript"
       ],
       "options": {
         "cwd": "${workspaceFolder}/tools/bindgen"
       },
       "problemMatcher": ["$gcc"],
-      "detail": "Generate TS declaration files for libkis."
+      "detail": "Generate libkis TS declarations"
     }
   ],
   "version": "2.0.0"
