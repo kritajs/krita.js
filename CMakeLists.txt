@@ -6,10 +6,7 @@ project(kritajs LANGUAGES CXX)
 # COMPILING
 # ==========================================================================================
 
-# Directory where CMake should package the plugin after building
-set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/build_package")
 set(DEPS_PATH "${CMAKE_SOURCE_DIR}/deps")
-set(ULTRALIGHT_PATH "${DEPS_PATH}/ultralight-sdk-1.3.0-win-x64")
 
 # Qt
 # We don't use a "proper" installation of Qt so we need to tell CMake where our Qt directory is
@@ -23,11 +20,14 @@ set(KRITA_INSTALL_PATH "C:/Program Files/Krita (x64)")
 add_library(libkis SHARED IMPORTED)
 set_target_properties(libkis PROPERTIES
   IMPORTED_LOCATION "${KRITA_INSTALL_PATH}/bin/libkritalibkis.dll"
+  # libkis doesn't have a .lib file so we just point it to anything.
+  # It's messy but it works ¯\_(ツ)_/¯
   IMPORTED_IMPLIB "${KRITA_INSTALL_PATH}/bin/libkritalibkis.dll"
 )
 target_include_directories(libkis INTERFACE "./src/plugin/libkis")
 
 # Ultralight - AppCore.dll
+set(ULTRALIGHT_PATH "${DEPS_PATH}/ultralight-sdk-1.3.0-win-x64")
 add_library(AppCore SHARED IMPORTED)
 set_target_properties(AppCore PROPERTIES
   IMPORTED_LOCATION "${ULTRALIGHT_PATH}/bin/AppCore.dll"
@@ -61,7 +61,6 @@ target_include_directories(WebCore INTERFACE "${ULTRALIGHT_PATH}/include")
 
 # Compile krita.js plugin as a shared library
 add_library(plugin SHARED "./src/plugin/plugin.cpp")
-target_include_directories(plugin PRIVATE "./src/plugin/libkis")
 target_link_libraries(plugin PRIVATE Qt5::Core Qt5::Widgets)
 target_link_libraries(plugin PRIVATE libkis)
 target_link_libraries(plugin PRIVATE AppCore Ultralight UltralightCore WebCore)
@@ -71,7 +70,8 @@ set_target_properties(plugin PROPERTIES OUTPUT_NAME "kritajs")
 # ==========================================================================================
 # INSTALLING
 # ==========================================================================================
-set(INSTALL_DIR "./kritajs")
+# Directory where CMake should package the plugin after building
+set(INSTALL_DIR "${CMAKE_SOURCE_DIR}/build_package/kritajs")
 
 # Copy Python wrapper plugin
 install(DIRECTORY "./src/wrapper/src/" DESTINATION "${INSTALL_DIR}")

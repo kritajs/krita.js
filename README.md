@@ -48,7 +48,6 @@ krita.js/
 │  ├─ ultralight-sdk-1.3.0-win-x64/
 ├─ src/
 ├─ tools/
-├─ typings/
 ```
 
 ### Building
