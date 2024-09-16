@@ -29,7 +29,7 @@ def start():
         ctypes.CDLL(str(bin_path / "Ultralight"))
         ctypes.CDLL(str(bin_path / "UltralightCore"))
         ctypes.CDLL(str(bin_path / "WebCore"))
-        kritajs_lib = ctypes.CDLL(str(bin_path / "kritajs"))
+        kritajs_lib = ctypes.CDLL(str(bin_path / "libkritajs"))
 
         # Initialize krita.js
         init_kritajs = kritajs_lib.KRITAJS

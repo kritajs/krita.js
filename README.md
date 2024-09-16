@@ -33,7 +33,6 @@ To build krita.js, you'll need to download/install the following:
 
 You will also need a few code dependencies. Each of the dependencies should be placed in a `deps` folder at the root of this repo.
 
-- [KCoreAddons](https://invent.kde.org/dkazakov/krita-ci-artifacts-windows-qt5.15/-/package_files/930852/download) - rename the extracted folder to `kcoreaddons`
 - [Krita source](https://invent.kde.org/graphics/krita) - check out tag v5.2.3, which is the latest version of Krita at the time of writing
 - [Qt](https://invent.kde.org/dkazakov/krita-ci-artifacts-windows-qt5.15/-/package_files/930824/download) - rename the extracted folder to `qt`
 - [Ultralight 1.3.0](https://ultralight-files.sfo3.cdn.digitaloceanspaces.com/ultralight-sdk-1.3.0-win-x64.7z)
@@ -44,7 +43,6 @@ Your folder structure should look like:
 krita.js/
 ├─ .vscode/
 ├─ deps/
-│  ├─ kcoreaddons/
 │  ├─ krita/
 │  ├─ qt/
 │  ├─ ultralight-sdk-1.3.0-win-x64/
@@ -66,10 +64,8 @@ cmake -B build -G "MinGW Makefiles"
 Run the following command to build:
 
 ```sh
-cmake --build build
+cmake --build build --target install
 ```
-
-This will build `kritajs.dll` into the `build` directory. Copy this file into `C:\Program Files\Krita (x64)\lib\kritaplugins` and then run Krita to test your changes.
 
 ### Using symlinks
 
@@ -80,11 +76,11 @@ To create symlinks on Windows, run the commands below in a command prompt (not P
 Create symlink to `kritajs` folder:
 
 ```
-mklink /D "C:\Users\myuser\AppData\Roaming\krita\pykrita\kritajs" "absolute\path\to\krita.js\src\plugin\kritajs"
+mklink /D "C:\Users\myuser\AppData\Roaming\krita\pykrita\kritajs" "absolute\path\to\krita.js\build_package\kritajs"
 ```
 
 Create symlink to `kritajs.desktop` file:
 
 ```
-mklink /H "C:\Users\myuser\AppData\Roaming\krita\pykrita\kritajs.desktop" "absolute\path\to\krita.js\src\plugin\kritajs.desktop"
+mklink /H "C:\Users\myuser\AppData\Roaming\krita\pykrita\kritajs.desktop" "absolute\path\to\krita.js\build_package\kritajs.desktop"
 ```

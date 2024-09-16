@@ -4,19 +4,19 @@
       "type": "cppbuild",
       "label": "Build plugin",
       "command": "cmake",
-      "args": ["--build", "build"],
+      "args": ["--build", "build", "--target", "install"],
       "problemMatcher": ["$gcc"],
       "group": {
         "kind": "build",
         "isDefault": true
       },
-      "detail": "Build the krita.js plugin"
+      "detail": "Build and package the krita.js plugin."
     },
     {
       "type": "shell",
       "label": "Generate build project",
       "command": "cmake -B build -G 'MinGW Makefiles'",
-      "detail": "Build the loader DLL used to initialize krita.js",
+      "detail": "Generate the Makefiles used to build krita.js.",
       "problemMatcher": []
     },
     {
@@ -27,7 +27,7 @@
         "./src/bindgen.py",
         "${workspaceFolder}/deps/krita",
         "-o",
-        "${workspaceFolder}/src/kritajs/libkis"
+        "${workspaceFolder}/src/plugin/libkis"
       ],
       "options": {
         "cwd": "${workspaceFolder}/tools/bindgen"
@@ -42,7 +42,7 @@
         "./src/generators/typescript/bindgen-ts.py",
         "${workspaceFolder}/deps/krita",
         "-o",
-        "${workspaceFolder}/src/kritajs/libkis"
+        "${workspaceFolder}/src/plugin/libkis"
       ],
       "options": {
         "cwd": "${workspaceFolder}/tools/bindgen"

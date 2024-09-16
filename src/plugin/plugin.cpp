@@ -17,21 +17,19 @@
 class KJS : public QDockWidget
 {
 public:
-    KJS(QWidget *parent, const char *basePath) : QDockWidget(parent) {
+    KJS(QWidget *parent, const char *_basePath) : QDockWidget(parent) {
         qDebug() << "PRE-INIT KJS";
-
-        std::string _basePath(basePath);
 
         // Enable required platform handlers
         // Use the OS's native font loader
         ulEnablePlatformFontLoader();
         // Use AppCore's file system singleton to load file:/// URLs from the OS.
-        ULString assetsPath = ulCreateString((_basePath + "/assets").c_str());
-        ulEnablePlatformFileSystem(assetsPath);
-        ulDestroyString(assetsPath);
+        ULString basePath = ulCreateString(_basePath);
+        ulEnablePlatformFileSystem(basePath);
+        ulDestroyString(basePath);
 
         // Use AppCore's default logger to write the log file to disk.
-        ULString logPath = ulCreateString((_basePath + "/logs/ultralight.log").c_str());
+        ULString logPath = ulCreateString("./ultralight.log");
         ulEnableDefaultLogger(logPath);
         ulDestroyString(logPath);
 
@@ -50,7 +48,7 @@ public:
         ulDestroyViewConfig(viewConfig);
 
         // Load content into the view
-        ULString entryUrl = ulCreateString("file:///page.html");
+        ULString entryUrl = ulCreateString("file:///assets/page.html");
         ulViewLoadURL(m_view, entryUrl);
         ulDestroyString(entryUrl);
 
