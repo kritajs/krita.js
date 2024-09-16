@@ -2,7 +2,8 @@ import argparse
 from pathlib import Path
 
 from generator import Generator
-from generators.header.generator import HeaderGenerator
+from generators.header.header_generator import HeaderGenerator
+from generators.typescript.typescript_generator import TypeScriptGenerator
 from parse import parse
 from preprocess import preprocess
 
@@ -17,7 +18,8 @@ def main():
     print("Output directory: " + str(output_dir))
 
     generators: list[Generator] = [
-        HeaderGenerator()
+        HeaderGenerator(),
+        # TypeScriptGenerator()
     ]
 
     for generator in generators:

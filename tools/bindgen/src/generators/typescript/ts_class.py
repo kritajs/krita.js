@@ -40,7 +40,6 @@ def remove_cpp_unique_syntax(phrase: str) -> str:
     return phrase.replace("*", "").replace("&", "").replace("const", "").strip()
 
 def get_plain_class_name(c: ClassScope) -> str:
-
     # Construct class declaration
     class_decl = c.class_decl.typename.format()
     return class_decl.split(" ")[1]

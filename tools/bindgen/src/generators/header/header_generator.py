@@ -149,7 +149,7 @@ class HeaderGenerator(Generator):
             # It also depends on boost and other non-libkis headers
             "PresetChooser.h"
         ]
-        headers = filter(lambda h: Path(h).name not in ignore, headers)
+        headers = list(filter(lambda h: Path(h).name not in ignore, headers))
         return headers
     
     def process(self, file_path: Path, output_dir: Path, data: ParsedData):
@@ -157,6 +157,7 @@ class HeaderGenerator(Generator):
         # It contains a bunch of Qt includes and forward declarations of other libkis
         # classes. We don't need to parse it -- just copy it as-is.
         if file_path.name == "libkis.h":
+            print(f"""Copying libkis.h...""")
             shutil.copy2(str(file_path), output_dir)
             return
 
