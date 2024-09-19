@@ -12,12 +12,27 @@ set(BINDGEN_ROOT_PATH ${CMAKE_SOURCE_DIR}/tools/bindgen)
 set(BINDGEN_COMMAND ${BINDGEN_ROOT_PATH}/ENV/Scripts/python ${BINDGEN_ROOT_PATH}/src/bindgen.py)
 set(BINDGEN_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bindgen)
 
+# Generate libkis headers
 set(BINDGEN_HEADERS_OUTPUT_PATH ${BINDGEN_OUTPUT_PATH}/headers)
 add_custom_target(
   bindgen_headers
   COMMAND ${BINDGEN_COMMAND} ${DEPS_PATH}/krita -o ${BINDGEN_HEADERS_OUTPUT_PATH} -g header
 )
 file(MAKE_DIRECTORY ${BINDGEN_HEADERS_OUTPUT_PATH})
+
+# ==========================================================================================
+# BUILD PLUGIN MANAGER
+# ==========================================================================================
+
+set(KJS_PLUGIN_MANAGER_PATH ${CMAKE_SOURCE_DIR}/src/manager)
+set(KJS_PLUGIN_MANAGER_OUTPUT_PATH ${CMAKE_BINARY_DIR}/manager)
+add_custom_target(
+  kjs_plugin_manager
+  WORKING_DIRECTORY ${KJS_PLUGIN_MANAGER_PATH}
+  COMMAND npx esbuild src/app.tsx --target=es6 --bundle --minify --outdir=${KJS_PLUGIN_MANAGER_OUTPUT_PATH}
+  COMMENT "Building krita.js Plugin Manager..."
+)
+file(MAKE_DIRECTORY ${KJS_PLUGIN_MANAGER_OUTPUT_PATH})
 
 # ==========================================================================================
 # BUILD C++ PLUGIN
@@ -77,6 +92,7 @@ target_include_directories(WebCore INTERFACE ${ULTRALIGHT_PATH}/include)
 
 # Compile krita.js plugin as a shared library
 add_library(plugin SHARED ./src/plugin/plugin.cpp)
+add_dependencies(plugin kjs_plugin_manager)
 target_link_libraries(plugin PRIVATE Qt5::Core Qt5::Widgets)
 target_link_libraries(plugin PRIVATE libkis)
 target_link_libraries(plugin PRIVATE AppCore Ultralight UltralightCore WebCore)
@@ -94,10 +110,11 @@ install(DIRECTORY ./src/wrapper/src/ DESTINATION ${INSTALL_PATH})
 install(FILES ./src/wrapper/kritajs.desktop DESTINATION ${INSTALL_PATH}/..)
 
 # Copy Ultralight resources. Ultralight needs these to run.
-install(DIRECTORY ${ULTRALIGHT_PATH}/resources DESTINATION ${INSTALL_PATH})
+install(DIRECTORY ${ULTRALIGHT_PATH}/resources DESTINATION ${INSTALL_PATH}/assets)
 
-# Copy Ultralight sample assets. Just for testing purposes so that we have something to display.
-install(DIRECTORY "${ULTRALIGHT_PATH}/samples/Sample 2 - Basic App/assets" DESTINATION ${INSTALL_PATH})
+# Copy plugin manager files
+install(DIRECTORY ${KJS_PLUGIN_MANAGER_PATH}/public/ DESTINATION ${INSTALL_PATH}/assets)
+install(DIRECTORY ${KJS_PLUGIN_MANAGER_OUTPUT_PATH}/ DESTINATION ${INSTALL_PATH}/assets)
 
 # Copy required DLLs
 install(TARGETS plugin RUNTIME DESTINATION ${INSTALL_PATH}/bin)

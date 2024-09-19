@@ -15,14 +15,16 @@
 class KJS : public QDockWidget
 {
 public:
-    KJS(QWidget *parent, const char *_basePath) : QDockWidget(parent) {
+    KJS(QWidget *parent, const char *_basePath) : QDockWidget(parent)
+    {
         qDebug() << "PRE-INIT KJS";
 
         // Enable required platform handlers
         // Use the OS's native font loader
         ulEnablePlatformFontLoader();
         // Use AppCore's file system singleton to load file:/// URLs from the OS.
-        ULString basePath = ulCreateString(_basePath);
+        std::string assetsPath = "/assets";
+        ULString basePath = ulCreateString((_basePath + assetsPath).c_str());
         ulEnablePlatformFileSystem(basePath);
         ulDestroyString(basePath);
 
@@ -47,12 +49,15 @@ public:
         ulDestroyViewConfig(viewConfig);
 
         // Load content into the view
-        ULString entryUrl = ulCreateString("file:///assets/page.html");
+        ULString entryUrl = ulCreateString("file:///index.html");
         ulViewLoadURL(m_view, entryUrl);
         ulDestroyString(entryUrl);
 
         // Register callback for when the view has finished loading
         ulViewSetFinishLoadingCallback(m_view, &onViewLoaded, this);
+
+        // Register callback for when a message is added to view's console
+        ulViewSetAddConsoleMessageCallback(m_view, &onViewConsoleMessage, this);
 
         // Hook into Krita/Qt's event loop so that we can continuously update Ultralight
         QTimer *timer = new QTimer(this);
@@ -63,7 +68,8 @@ public:
         qDebug() << "POST-INIT KJS";
     }
 
-    ~KJS() {
+    ~KJS()
+    {
         qDebug() << "DESTROY KJS";
         ulDestroyView(m_view);
         ulDestroyRenderer(m_renderer);
@@ -73,10 +79,11 @@ public:
     void tick()
     {
         ulUpdate(m_renderer);
-        
+
         // If Ultralight surface pixels are dirty then queue a repaint
         ULSurface surface = ulViewGetSurface(m_view);
-        if (!ulIntRectIsEmpty(ulSurfaceGetDirtyBounds(surface))) {
+        if (!ulIntRectIsEmpty(ulSurfaceGetDirtyBounds(surface)))
+        {
             qDebug("QUEUE PAINT");
             update();
         }
@@ -96,18 +103,40 @@ public:
         ULBitmap bitmap = ulBitmapSurfaceGetBitmap(surface);
         void *pixelBuffer = ulBitmapLockPixels(bitmap);
         QPainter painter(this);
-        painter.drawImage(QPoint(0,0), *m_img);
+        painter.drawImage(QPoint(0, 0), *m_img);
         ulBitmapUnlockPixels(bitmap);
         ulSurfaceClearDirtyBounds(surface);
     }
 
-    static void onViewLoaded(void *user_data, ULView caller, unsigned long long frame_id, bool is_main_frame, ULString url)
+    static void onViewLoaded(void *user_data,
+                             ULView caller,
+                             unsigned long long frame_id,
+                             bool is_main_frame,
+                             ULString url)
     {
         if (is_main_frame)
         {
             qDebug("VIEW LOADED");
-            KJS *kjs = static_cast<KJS*>(user_data);
+            KJS *kjs = static_cast<KJS *>(user_data);
             kjs->_onViewLoaded();
+        }
+    }
+
+    static void onViewConsoleMessage(void *user_data,
+                                     ULView caller,
+                                     ULMessageSource source,
+                                     ULMessageLevel level,
+                                     ULString message,
+                                     unsigned int line_number,
+                                     unsigned int column_number,
+                                     ULString source_id)
+    {
+        auto dbg = qDebug();
+        dbg << ulStringGetData(message);
+
+        if (source == kMessageSource_JS)
+        {
+            dbg << " (" << ulStringGetData(source_id) << " @ line " << line_number << ", col " << column_number << ")";
         }
     }
 
@@ -122,11 +151,10 @@ private:
         ULBitmap bitmap = ulBitmapSurfaceGetBitmap(surface);
         void *pixelBuffer = ulBitmapLockPixels(bitmap);
         m_img = new QImage(
-            static_cast<const uchar*>(pixelBuffer),
+            static_cast<const uchar *>(pixelBuffer),
             ulBitmapGetWidth(bitmap),
             ulBitmapGetHeight(bitmap),
-            QImage::Format_ARGB32
-        );
+            QImage::Format_ARGB32);
         ulBitmapUnlockPixels(bitmap);
         update();
     }

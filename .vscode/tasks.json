@@ -2,7 +2,7 @@
   "tasks": [
     {
       "type": "cppbuild",
-      "label": "Build plugin",
+      "label": "Build krita.js",
       "command": "cmake",
       "args": ["--build", "build", "--target", "install"],
       "problemMatcher": ["$gcc"],
