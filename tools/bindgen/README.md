@@ -16,9 +16,7 @@ bindgen uses [pcpp](https://github.com/ned14/pcpp) for preprocessing and [cxxhea
 
 ## Getting started
 
-First, you'll need to install [Python](https://www.python.org/).
-
-Next, run the following commands:
+Run the following commands to install bindgen's dependencies into a virtual environment:
 
 ```sh
 # Create a Python virtual environment
@@ -34,7 +32,14 @@ ENV\Scripts\activate.bat
 pip install -r requirements.txt
 ```
 
-To run bindgen, use the **Run bindgen** task in VS Code. To run the TS version, use the **Run bindgen-ts** task instead.
+You can run bindgen with the following command:
+
+```sh
+# -g flag options:
+# - `header`
+# - `typescript`
+python src/bindgen.py /path/to/krita/repo -o /output/path -g header
+```
 
 ## Developing bindgen
 

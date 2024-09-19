@@ -25,6 +25,7 @@ To build krita.js, you'll need to download/install the following:
   - Must be installed so that the linker can link to `libkis`
   - krita.js targets Krita 5.2.3
   - Needs to be installed to `C:/Program Files/Krita (x64)`
+- [Python](https://www.python.org/)
 - [CMake](https://cmake.org/download/)
 - [LLVM MinGW compiler toolchain](https://github.com/mstorsjo/llvm-mingw/releases/download/20220906/llvm-mingw-20220906-ucrt-x86_64.zip)
   - This is the same toolchain used to build Krita. We use the same exact version as the one Krita uses to ensure maximum compatibility when linking to Krita's libraries.
@@ -52,7 +53,7 @@ krita.js/
 
 ### Building
 
-First, you will need to generate the CMake project. To do this, run:
+First, generate the CMake project by running:
 
 ```sh
 cmake -B build -G "MinGW Makefiles"

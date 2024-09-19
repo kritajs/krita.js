@@ -155,7 +155,7 @@ class HeaderGenerator(Generator):
     def process(self, file_path: Path, output_dir: Path, data: ParsedData):
         # libkis.h is a common file included by most of the other libkis headers.
         # It contains a bunch of Qt includes and forward declarations of other libkis
-        # classes. We don't need to parse it -- just copy it as-is.
+        # classes. We don't need to process it -- just copy it as-is.
         if file_path.name == "libkis.h":
             print(f"""Copying libkis.h...""")
             shutil.copy2(str(file_path), output_dir)

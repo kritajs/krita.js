@@ -6,11 +6,9 @@
 #include <QPainter>
 #include <QTimer>
 #include <QWidget>
-
 #include <AppCore/CAPI.h>
 #include <JavaScriptCore/JavaScript.h>
 #include <Ultralight/CAPI.h>
-
 #include "Krita.h"
 #include "Window.h"
 

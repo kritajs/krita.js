@@ -16,43 +16,7 @@
       "type": "shell",
       "label": "Generate build project",
       "command": "cmake -B build -G 'MinGW Makefiles'",
-      "detail": "Generate the Makefiles used to build krita.js.",
-      "problemMatcher": []
-    },
-    {
-      "type": "shell",
-      "label": "Generate libkis headers",
-      "command": "./ENV/Scripts/python",
-      "args": [
-        "./src/bindgen.py",
-        "${workspaceFolder}/deps/krita",
-        "-o",
-        "${workspaceFolder}/src/plugin/libkis",
-        "-g",
-        "header"
-      ],
-      "options": {
-        "cwd": "${workspaceFolder}/tools/bindgen"
-      },
-      "detail": "Generate libkis headers"
-    },
-    {
-      "type": "shell",
-      "label": "Generate libkis TS declarations",
-      "command": "./ENV/Scripts/python",
-      "args": [
-        "./src/bindgen.py",
-        "${workspaceFolder}/deps/krita",
-        "-o",
-        "${workspaceFolder}/src/plugin/libkis",
-        "-g",
-        "typescript"
-      ],
-      "options": {
-        "cwd": "${workspaceFolder}/tools/bindgen"
-      },
-      "problemMatcher": ["$gcc"],
-      "detail": "Generate libkis TS declarations"
+      "detail": "Generate the Makefiles used to build krita.js."
     }
   ],
   "version": "2.0.0"
