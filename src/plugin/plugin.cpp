@@ -80,7 +80,7 @@ public:
     {
         ulUpdate(m_renderer);
 
-        // If Ultralight surface pixels are dirty then queue a repaint
+        // Queue a paint event if Ultralight view has updated
         ULSurface surface = ulViewGetSurface(m_view);
         if (!ulIntRectIsEmpty(ulSurfaceGetDirtyBounds(surface)))
         {
@@ -131,6 +131,7 @@ public:
                                      unsigned int column_number,
                                      ULString source_id)
     {
+        // Separate calls to qDebug will result in new lines so we re-use the same qDebug to prevent that
         auto dbg = qDebug();
         dbg << ulStringGetData(message);
 
@@ -156,7 +157,7 @@ private:
             ulBitmapGetHeight(bitmap),
             QImage::Format_ARGB32);
         ulBitmapUnlockPixels(bitmap);
-        update();
+        update(); // Queue paint event
     }
 };
 
@@ -168,7 +169,7 @@ extern "C" __declspec(dllexport) void KRITAJS(const char *basePath)
 {
     if (initialized)
     {
-        qDebug("krita.js has already been initialized!");
+        qWarning("krita.js has already been initialized!");
         return;
     }
     initialized = true;
