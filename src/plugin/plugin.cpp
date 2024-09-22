@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QDockWidget>
 #include <QMainWindow>
+#include <QMouseEvent>
 #include <QObject>
 #include <QPainter>
 #include <QTimer>
@@ -42,10 +43,10 @@ public:
         // Create view
         ULViewConfig viewConfig = ulCreateViewConfig();
         // Using a device scale of 2.0 for now. Should get this value from Qt instead.
-        ulViewConfigSetInitialDeviceScale(viewConfig, 2.0);
+        // ulViewConfigSetInitialDeviceScale(viewConfig, 2.0);
         // Disable GPU acceleration so that we can request a bitmap. We use QPainter to render the bitmap.
         ulViewConfigSetIsAccelerated(viewConfig, false);
-        m_view = ulCreateView(m_renderer, 1000, 500, viewConfig, 0);
+        m_view = ulCreateView(m_renderer, 640, 480, viewConfig, 0);
         ulDestroyViewConfig(viewConfig);
 
         // Load content into the view
@@ -65,6 +66,9 @@ public:
         QObject::connect(timer, &QTimer::timeout, this, &KJS::tick);
         timer->start(50);
 
+        // Enable mouse move events
+        setMouseTracking(true);
+
         qDebug() << "POST-INIT KJS";
     }
 
@@ -79,6 +83,7 @@ public:
     void tick()
     {
         ulUpdate(m_renderer);
+        ulRender(m_renderer);
 
         // Queue a paint event if Ultralight view has updated
         ULSurface surface = ulViewGetSurface(m_view);
@@ -106,6 +111,27 @@ public:
         painter.drawImage(QPoint(0, 0), *m_img);
         ulBitmapUnlockPixels(bitmap);
         ulSurfaceClearDirtyBounds(surface);
+    }
+
+    void mousePressEvent(QMouseEvent *event)
+    {
+        ULMouseEvent e = ulCreateMouseEvent(kMouseEventType_MouseDown, event->x(), event->y(), kMouseButton_None);
+        ulViewFireMouseEvent(m_view, e);
+        ulDestroyMouseEvent(e);
+    }
+
+    void mouseReleaseEvent(QMouseEvent *event)
+    {
+        ULMouseEvent e = ulCreateMouseEvent(kMouseEventType_MouseUp, event->x(), event->y(), kMouseButton_None);
+        ulViewFireMouseEvent(m_view, e);
+        ulDestroyMouseEvent(e);
+    }
+
+    void mouseMoveEvent(QMouseEvent *event)
+    {
+        ULMouseEvent e = ulCreateMouseEvent(kMouseEventType_MouseMoved, event->x(), event->y(), kMouseButton_None);
+        ulViewFireMouseEvent(m_view, e);
+        ulDestroyMouseEvent(e);
     }
 
     static void onViewLoaded(void *user_data,
@@ -179,7 +205,7 @@ extern "C" __declspec(dllexport) void KRITAJS(const char *basePath)
     QMainWindow *qwindow = krita->activeWindow()->qwindow();
     KJS *kjs = new KJS(qwindow, basePath);
     kjs->move(200, 200);
-    kjs->resize(1000, 500);
+    kjs->resize(640, 480);
     kjs->show();
 
     return;
