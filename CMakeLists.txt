@@ -91,7 +91,13 @@ set_target_properties(WebCore PROPERTIES
 target_include_directories(WebCore INTERFACE ${ULTRALIGHT_PATH}/include)
 
 # Compile krita.js plugin as a shared library
-add_library(plugin SHARED ./src/plugin/plugin.cpp)
+set(PLUGIN_PATH ./src/plugin/)
+add_library(plugin SHARED
+  ${PLUGIN_PATH}/plugin.cpp
+  ${PLUGIN_PATH}/renderer.cpp
+  ${PLUGIN_PATH}/view.cpp
+)
+target_include_directories(plugin PRIVATE ./src/plugin)
 add_dependencies(plugin plugin_manager)
 target_link_libraries(plugin PRIVATE Qt5::Core Qt5::Widgets)
 target_link_libraries(plugin PRIVATE libkis)
@@ -111,6 +117,9 @@ install(FILES ./src/wrapper/kritajs.desktop DESTINATION ${INSTALL_PATH}/..)
 
 # Copy Ultralight resources. Ultralight needs these to run.
 install(DIRECTORY ${ULTRALIGHT_PATH}/resources DESTINATION ${INSTALL_PATH}/assets)
+
+# Copy Ultralight inspector
+# install(DIRECTORY ${ULTRALIGHT_PATH}/inspector DESTINATION ${INSTALL_PATH}/assets)
 
 # Copy plugin manager files
 install(DIRECTORY ${PLUGIN_MANAGER_PATH}/public/ DESTINATION ${INSTALL_PATH}/assets)

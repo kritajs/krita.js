@@ -13,8 +13,14 @@ class kritajs(Extension):
         pass
 
     def createActions(self, window):
-        action = window.createAction("runKritajs", "Run krita.js", "tools/scripts/krita.js")
-        action.triggered.connect(start)
+        location = "tools/scripts/krita.js"
+        action = window.createAction("kritajs", "kritajs", location)
+        menu = QMenu('kritajs', window.qwindow())
+        action.setMenu(menu)
+
+        plugin_manager_action = window.createAction("openKritaJsPluginManager", "Plugin Manager", location)
+        plugin_manager_action.triggered.connect(start)
+        menu.addAction(plugin_manager_action)
 
 def start():
     # Perform any cleanup when Krita needs to close
