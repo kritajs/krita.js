@@ -8,6 +8,7 @@ krita.js is a Krita plugin that allows users to create plugins using HTML, CSS a
 - [ ] Generate .d.ts files for Krita API
 - [ ] Figure out interface for krita.js plugins
 - [ ] Set up packaging/release pipeline for multiple platforms
+- [ ] Add dev tools
 
 ## Developing krita.js
 

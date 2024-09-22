@@ -54,10 +54,9 @@ public:
         ulViewLoadURL(m_view, entryUrl);
         ulDestroyString(entryUrl);
 
-        // Register callback for when the view has finished loading
+        // Register callbacks
+        ulViewSetDOMReadyCallback(m_view, &onViewDOMReady, this);
         ulViewSetFinishLoadingCallback(m_view, &onViewLoaded, this);
-
-        // Register callback for when a message is added to view's console
         ulViewSetAddConsoleMessageCallback(m_view, &onViewConsoleMessage, this);
 
         // Hook into Krita/Qt's event loop so that we can continuously update Ultralight
@@ -80,20 +79,7 @@ public:
         delete m_img;
     }
 
-    void tick()
-    {
-        ulUpdate(m_renderer);
-        ulRender(m_renderer);
-
-        // Queue a paint event if Ultralight view has updated
-        ULSurface surface = ulViewGetSurface(m_view);
-        if (!ulIntRectIsEmpty(ulSurfaceGetDirtyBounds(surface)))
-        {
-            qDebug("QUEUE PAINT");
-            update();
-        }
-    }
-
+protected:
     void paintEvent(QPaintEvent *)
     {
         // m_img will be set once the view is loaded. Skip painting before that has happened.
@@ -134,6 +120,24 @@ public:
         ulDestroyMouseEvent(e);
     }
 
+private:
+    ULView m_view;
+    ULRenderer m_renderer;
+    QImage *m_img = nullptr;
+
+    // Called when the view's DOM is ready
+    static void onViewDOMReady(void *user_data,
+                               ULView caller,
+                               unsigned long long frame_id,
+                               bool is_main_frame,
+                               ULString url)
+    {
+        qDebug("DOM READY");
+        KJS *kjs = static_cast<KJS *>(user_data);
+        kjs->_onViewDOMReady();
+    }
+
+    // Called when the view has finished loading
     static void onViewLoaded(void *user_data,
                              ULView caller,
                              unsigned long long frame_id,
@@ -148,6 +152,7 @@ public:
         }
     }
 
+    // Called when a message is added to the view's console
     static void onViewConsoleMessage(void *user_data,
                                      ULView caller,
                                      ULMessageSource source,
@@ -167,10 +172,25 @@ public:
         }
     }
 
-private:
-    ULView m_view;
-    ULRenderer m_renderer;
-    QImage *m_img = nullptr;
+    void _onViewDOMReady()
+    {
+        JSContextRef ctx = ulViewLockJSContext(m_view);
+        std::string className = "MyClass";
+        JSStringRef name = JSStringCreateWithUTF8CString(className.c_str());
+        JSClassDefinition definition = kJSClassDefinitionEmpty;
+        definition.className = className.c_str();
+        JSClassRef classRef = JSClassCreate(&definition);
+        JSObjectRef ctor = JSObjectMakeConstructor(ctx, classRef, 0);
+
+        // Attach class constructor to global object
+        JSObjectRef globalObj = JSContextGetGlobalObject(ctx);
+        JSObjectSetProperty(ctx, globalObj, name, ctor, 0, 0);
+
+        // Cleanup
+        JSClassRelease(classRef);
+        JSStringRelease(name);
+        ulViewUnlockJSContext(m_view);
+    }
 
     void _onViewLoaded()
     {
@@ -184,6 +204,20 @@ private:
             QImage::Format_ARGB32);
         ulBitmapUnlockPixels(bitmap);
         update(); // Queue paint event
+    }
+
+    void tick()
+    {
+        ulUpdate(m_renderer);
+        ulRender(m_renderer);
+
+        // Queue a paint event if Ultralight view has updated
+        ULSurface surface = ulViewGetSurface(m_view);
+        if (!ulIntRectIsEmpty(ulSurfaceGetDirtyBounds(surface)))
+        {
+            qDebug("QUEUE PAINT");
+            update();
+        }
     }
 };
 
