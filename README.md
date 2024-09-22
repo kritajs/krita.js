@@ -4,10 +4,6 @@ krita.js is a Krita plugin that allows users to create plugins using HTML, CSS a
 
 ## To do
 
-- [x] Implement Ultralight prototype
-- [x] Draw Ultralight view into QDockWidget
-- [x] Figure out how to call `libkis`
-- [x] Build krita.js as a Qt C++ plugin
 - [ ] Create JS bindings for Krita API
 - [ ] Generate .d.ts files for Krita API
 - [ ] Figure out interface for krita.js plugins
@@ -43,7 +39,6 @@ Your folder structure should look like:
 
 ```
 krita.js/
-├─ .vscode/
 ├─ deps/
 │  ├─ krita/
 │  ├─ qt/
