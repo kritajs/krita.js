@@ -58,7 +58,13 @@ cmake -B build -G "MinGW Makefiles"
 
 > If you change the `CMakeLists.txt` file, you must run this command again to regenerate the project.
 
-Run the following command to build:
+Before you run the following command, make sure you have installed all the dependencies that the plugin manager will need:
+```sh
+cd .\src\manager\
+npm install
+```
+
+Return to the main directory and run the following command to build:
 
 ```sh
 cmake --build build --target install
