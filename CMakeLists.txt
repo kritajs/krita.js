@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(kritajs LANGUAGES CXX)
 
 set(DEPS_PATH ${CMAKE_SOURCE_DIR}/deps)
@@ -93,6 +95,7 @@ target_include_directories(WebCore INTERFACE ${ULTRALIGHT_PATH}/include)
 # Compile krita.js plugin as a shared library
 set(PLUGIN_PATH ./src/plugin/)
 add_library(plugin SHARED
+  ${PLUGIN_PATH}/binding.cpp
   ${PLUGIN_PATH}/plugin.cpp
   ${PLUGIN_PATH}/renderer.cpp
   ${PLUGIN_PATH}/view.cpp

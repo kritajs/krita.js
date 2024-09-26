@@ -1,3 +1,4 @@
+#include <QDebug>
 #include <QTimer>
 #include <AppCore/CAPI.h>
 #include <JavaScriptCore/JavaScript.h>
@@ -26,6 +27,9 @@ Renderer::Renderer(QObject *parent, const char *_basePath) : QObject(parent)
     m_renderer = ulCreateRenderer(config);
     ulDestroyConfig(config);
 
+    // Allow remote inspection
+    ulStartRemoteInspectorServer(m_renderer, "127.0.0.1", 19998);
+
     // Hook into Krita/Qt's event loop so that we can continuously update Ultralight
     QTimer *timer = new QTimer(this);
     timer->setObjectName("krita.js timer");
@@ -44,7 +48,7 @@ View *Renderer::createView(QWidget *parent)
     // ulViewConfigSetInitialDeviceScale(viewConfig, 2.0);
     // Use CPU acceleration so that we can request a bitmap. We use QPainter to render the bitmap.
     ulViewConfigSetIsAccelerated(viewConfig, false);
-    ULView ulView = ulCreateView(m_renderer, 640, 480, viewConfig, 0);
+    ULView ulView = ulCreateView(m_renderer, 640, 480, viewConfig, NULL);
     ulDestroyViewConfig(viewConfig);
 
     View *view = new View(parent, ulView);

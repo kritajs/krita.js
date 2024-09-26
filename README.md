@@ -10,6 +10,12 @@ krita.js is a Krita plugin that allows users to create plugins using HTML, CSS a
 - [ ] Set up packaging/release pipeline for multiple platforms
 - [ ] Add dev tools
 
+Qt-specific:
+
+- [ ] Expose Qt classes to JS
+- [ ] Integrate Qt signals/slots
+- [ ] Allow JS to extend Qt classes
+
 ## Developing krita.js
 
 This section is for people developing the krita.js plugin itself. Note that these instructions have only been tested on Windows (64-bit).

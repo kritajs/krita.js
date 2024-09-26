@@ -1,5 +1,6 @@
 #include <QDebug>
 #include <QPainter>
+#include "binding.h"
 #include "view.h"
 
 View::View(QWidget *parent, ULView view) : QWidget(parent), m_view(view)
@@ -111,16 +112,17 @@ void View::_onViewDOMReady()
     qDebug("DOM READY");
 
     JSContextRef ctx = ulViewLockJSContext(m_view);
-    std::string className = "MyClass";
+    std::string className = "Qt5Core";
     JSStringRef name = JSStringCreateWithUTF8CString(className.c_str());
     JSClassDefinition definition = kJSClassDefinitionEmpty;
     definition.className = className.c_str();
+    definition.getProperty = &getClassConstructor;
     JSClassRef classRef = JSClassCreate(&definition);
-    JSObjectRef ctor = JSObjectMakeConstructor(ctx, classRef, 0);
+    JSObjectRef ctor = JSObjectMakeConstructor(ctx, classRef, NULL);
 
     // Attach class constructor to global object
     JSObjectRef globalObj = JSContextGetGlobalObject(ctx);
-    JSObjectSetProperty(ctx, globalObj, name, ctor, 0, 0);
+    JSObjectSetProperty(ctx, globalObj, name, ctor, NULL, NULL);
 
     // Cleanup
     JSClassRelease(classRef);

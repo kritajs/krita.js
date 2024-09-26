@@ -3,10 +3,8 @@ import { createRoot } from "react-dom/client";
 
 function onClick() {
   console.log("JS BUTTON CLICKED");
-  const a = new MyClass();
-  console.log(a);
-  console.log(typeof MyClass);
-  console.log(typeof a);
+  // const core = new Qt5Core();
+  // const qobj = new core.QObject();
 }
 
 function App() {
