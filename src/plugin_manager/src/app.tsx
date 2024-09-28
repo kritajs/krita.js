@@ -3,9 +3,9 @@ import { createRoot } from "react-dom/client";
 
 function onClick() {
   console.log("JS BUTTON CLICKED");
-  console.log(Q.Object);
-  console.log(Q.PushButton);
-  console.log(K.Krita);
+  console.log(new Q.Object());
+  console.log(new Q.PushButton());
+  console.log(new K.Krita());
 }
 
 function App() {

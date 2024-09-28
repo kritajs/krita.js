@@ -7,12 +7,10 @@
 class QtMetaObjectProxy
 {
 public:
-    QMetaObject *m_mo;
-    JSObjectRef m_ctor;
+    JSObjectRef m_classObj;
 
-    QtMetaObjectProxy(QString className, QMetaObject *mo);
-    ~QtMetaObjectProxy();
+    QtMetaObjectProxy(JSContextRef ctx, QMetaObject *mo);
 
 private:
-    JSClassRef m_classRef;
+    QMetaObject *m_mo;
 };

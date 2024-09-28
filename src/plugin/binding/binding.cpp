@@ -12,23 +12,23 @@ JSValueRef getProperty(JSContextRef ctx, JSObjectRef object, JSStringRef propert
 {
     Binding *binding = static_cast<Binding *>(JSObjectGetPrivate(object));
     QString className = QString::fromWCharArray(JSStringGetCharactersPtr(propertyName), JSStringGetLength(propertyName));
+    className = binding->transformPropertyName(className);
 
-    JSObjectRef ctor = binding->getCachedCtor(className);
-    if (ctor)
+    QtMetaObjectProxy *cachedProxy = binding->getCachedProxy(className);
+    if (cachedProxy)
     {
-        return ctor;
+        return cachedProxy->m_classObj;
     }
 
     // Find staticMetaObject by explicitly linking
     QMetaObject *mo = nullptr;
     for (const auto &libName : binding->m_libsToSearch)
     {
-        QString realClassName = binding->m_getClassNameCallback(className);
         QLibrary lib(libName);
         // Black magic - this relies on the Itanium ABI name mangling scheme
         QString staticMetaObjectSymbol = QString("_ZN%1%2")
-                                             .arg(realClassName.size())
-                                             .arg(realClassName) +
+                                             .arg(className.size())
+                                             .arg(className) +
                                          "16staticMetaObjectE";
         mo = (QMetaObject *)lib.resolve(staticMetaObjectSymbol.toLocal8Bit().constData());
         if (mo)
@@ -37,36 +37,22 @@ JSValueRef getProperty(JSContextRef ctx, JSObjectRef object, JSStringRef propert
         }
     }
 
-    // Requested property was not found in any of the shared libraries. Just return undefined;
+    // Requested property was not found in any of the searched libraries. Just return undefined;
     if (!mo)
     {
         return JSValueMakeUndefined(ctx);
     }
 
-    return JSValueMakeUndefined(ctx);
-
-    // // Create and cache an instance of our class.
-    // // Subsequent reads to get this class will re-use the same class instance.
-
-    // // Note that we're exposing a class instance (JSObjectMake) instead of a
-    // // constructor (JSObjectMakeConstructor). The class definition defines a
-    // // callAsConstructor callback which is why you can do `new SomeQtClass()`
-    // // in JS.
-
-    // // I tried using JSObjectMakeConstructor but couldn't get private data
-    // // working with it which is why we use a class instance instead.
-    // QtMetaObjectProxy *proxy = new QtMetaObjectProxy(className, mo);
-    // JSObjectRef classObj = JSObjectMake(ctx, proxy->m_classRef, NULL);
-    // cache[className] = classObj;
-
-    // return classObj;
+    QtMetaObjectProxy *proxy = new QtMetaObjectProxy(ctx, mo);
+    binding->addProxyToCache(className, proxy);
+    return proxy->m_classObj;
 }
 
 Binding::Binding(JSContextRef ctx,
                  QStringList libsToSearch,
-                 GetClassNameCallback getClassNameCallback)
+                 TransformPropertyNameCallback transformPropertyNameCallback)
     : m_libsToSearch(libsToSearch),
-      m_getClassNameCallback(getClassNameCallback)
+      transformPropertyName(transformPropertyNameCallback)
 {
     JSClassDefinition definition = kJSClassDefinitionEmpty;
     definition.getProperty = &getProperty;
@@ -77,20 +63,25 @@ Binding::Binding(JSContextRef ctx,
 
 Binding::~Binding()
 {
-    for (auto &[className, proxy] : m_cache)
+    for (auto &[className, proxy] : m_classCache)
     {
         delete proxy;
     }
 }
 
-JSObjectRef Binding::getCachedCtor(QString className)
+QtMetaObjectProxy *Binding::getCachedProxy(QString key)
 {
     try
     {
-        return m_cache.at(className)->m_ctor;
+        return m_classCache.at(key);
     }
     catch (const std::exception &e)
     {
         return nullptr;
     }
+}
+
+void Binding::addProxyToCache(QString key, QtMetaObjectProxy *proxy)
+{
+    m_classCache[key] = proxy;
 }
