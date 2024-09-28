@@ -3,8 +3,9 @@ import { createRoot } from "react-dom/client";
 
 function onClick() {
   console.log("JS BUTTON CLICKED");
-  // const core = new Qt5Core();
-  // const qobj = new core.QObject();
+  console.log(Q.QObject);
+  console.log(Q.QPushButton);
+  console.log(K.Krita);
 }
 
 function App() {

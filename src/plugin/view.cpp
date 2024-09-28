@@ -1,6 +1,5 @@
 #include <QDebug>
 #include <QPainter>
-#include "binding.h"
 #include "view.h"
 
 View::View(QWidget *parent, ULView view) : QWidget(parent), m_view(view)
@@ -22,13 +21,13 @@ View::View(QWidget *parent, ULView view) : QWidget(parent), m_view(view)
 View::~View()
 {
     ulDestroyView(m_view);
-    delete m_img;
+    qDeleteAll(m_bindings.begin(), m_bindings.end());
+    m_bindings.clear();
 }
 
 void View::paintEvent(QPaintEvent *)
 {
-    // m_img will be set once the view is loaded. Skip painting before that has happened.
-    if (m_img == nullptr)
+    if (!m_isReady)
     {
         return;
     }
@@ -39,7 +38,7 @@ void View::paintEvent(QPaintEvent *)
     ULBitmap bitmap = ulBitmapSurfaceGetBitmap(surface);
     void *pixelBuffer = ulBitmapLockPixels(bitmap);
     QPainter painter(this);
-    painter.drawImage(QPoint(0, 0), *m_img);
+    painter.drawImage(QPoint(0, 0), m_img);
     ulBitmapUnlockPixels(bitmap);
     ulSurfaceClearDirtyBounds(surface);
 }
@@ -109,24 +108,36 @@ void View::onViewConsoleMessage(void *user_data,
 
 void View::_onViewDOMReady()
 {
-    qDebug("DOM READY");
+    // Once the DOM is ready, we expose two classes on the global object:
+    // - Q: allows JS to access any Qt class by using `Q.<className>`.
+    //   For example, `const button = new Q.PushButton()`;
+    // - K: allows JS to access any libkis class by using `K.<className>`.
+    //   For example, `const krita = K.Krita.instance()`;
 
     JSContextRef ctx = ulViewLockJSContext(m_view);
-    std::string className = "Qt5Core";
-    JSStringRef name = JSStringCreateWithUTF8CString(className.c_str());
-    JSClassDefinition definition = kJSClassDefinitionEmpty;
-    definition.className = className.c_str();
-    definition.getProperty = &getClassConstructor;
-    JSClassRef classRef = JSClassCreate(&definition);
-    JSObjectRef ctor = JSObjectMakeConstructor(ctx, classRef, NULL);
-
-    // Attach class constructor to global object
     JSObjectRef globalObj = JSContextGetGlobalObject(ctx);
-    JSObjectSetProperty(ctx, globalObj, name, ctor, NULL, NULL);
+    JSPropertyAttributes attrs = kJSPropertyAttributeReadOnly || kJSPropertyAttributeDontDelete;
 
-    // Cleanup
-    JSClassRelease(classRef);
-    JSStringRelease(name);
+    // Create and expose the Q class on the global object. Only exposing
+    // classes from the following Qt modules:
+    // - Core
+    // - GUI
+    // - Widgets
+    QStringList qtLibs = {"Qt5Core", "Qt5Gui", "Qt5Widgets"};
+    Binding *qtBinding = new Binding(ctx, qtLibs);
+    m_bindings.append(qtBinding);
+    JSStringRef qClassName = JSStringCreateWithUTF8CString("Q");
+    JSObjectSetProperty(ctx, globalObj, qClassName, qtBinding->m_classObj, attrs, NULL);
+    JSStringRelease(qClassName);
+
+    // Create and expose the K class on the global object.
+    QStringList kritaLibs = {"libkritalibkis"};
+    Binding *kritaBinding = new Binding(ctx, kritaLibs);
+    m_bindings.append(kritaBinding);
+    JSStringRef kritaClassName = JSStringCreateWithUTF8CString("K");
+    JSObjectSetProperty(ctx, globalObj, kritaClassName, kritaBinding->m_classObj, attrs, NULL);
+    JSStringRelease(kritaClassName);
+
     ulViewUnlockJSContext(m_view);
 }
 
@@ -137,7 +148,7 @@ void View::_onViewLoaded()
     ULSurface surface = ulViewGetSurface(m_view);
     ULBitmap bitmap = ulBitmapSurfaceGetBitmap(surface);
     void *pixelBuffer = ulBitmapLockPixels(bitmap);
-    m_img = new QImage(
+    m_img = QImage(
         static_cast<const uchar *>(pixelBuffer),
         ulBitmapGetWidth(bitmap),
         ulBitmapGetHeight(bitmap),

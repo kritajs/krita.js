@@ -3,6 +3,7 @@
 #include <QMouseEvent>
 #include <QWidget>
 #include <Ultralight/CAPI.h>
+#include "binding.h"
 
 class View : public QWidget
 {
@@ -10,6 +11,7 @@ class View : public QWidget
 
 public:
     ULView m_view;
+    // Whether this view is ready to be rendered
     bool m_isReady = false;
 
     View(QWidget *parent, ULView view);
@@ -43,7 +45,9 @@ protected:
                                      ULString source_id);
 
 private:
-    QImage *m_img = nullptr;
+    QImage m_img;
+    QList<Binding *> m_bindings;
+
     void _onViewDOMReady();
     void _onViewLoaded();
 };
