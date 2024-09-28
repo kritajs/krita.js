@@ -4,12 +4,12 @@
 #include <QString>
 #include <Ultralight/CAPI.h>
 
-class QtMetaObjectProxy
+class QObjectProxy
 {
 public:
     JSObjectRef m_classObj;
 
-    QtMetaObjectProxy(JSContextRef ctx, QMetaObject *mo);
+    QObjectProxy(JSContextRef ctx, QMetaObject *mo);
 
 private:
     QMetaObject *m_mo;

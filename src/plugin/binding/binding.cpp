@@ -4,7 +4,7 @@
 #include <QMetaType>
 #include <QString>
 #include "binding.h"
-#include "qt_meta_object_proxy.h"
+#include "q_object_proxy.h"
 
 // Returns a constructor object for the class specified by propertyName.
 // Returns a JS undefined value if class is not found in any of the searched libraries.
@@ -14,7 +14,7 @@ JSValueRef getProperty(JSContextRef ctx, JSObjectRef object, JSStringRef propert
     QString className = QString::fromWCharArray(JSStringGetCharactersPtr(propertyName), JSStringGetLength(propertyName));
     className = binding->transformPropertyName(className);
 
-    QtMetaObjectProxy *cachedProxy = binding->getCachedProxy(className);
+    QObjectProxy *cachedProxy = binding->getCachedProxy(className);
     if (cachedProxy)
     {
         return cachedProxy->m_classObj;
@@ -43,7 +43,7 @@ JSValueRef getProperty(JSContextRef ctx, JSObjectRef object, JSStringRef propert
         return JSValueMakeUndefined(ctx);
     }
 
-    QtMetaObjectProxy *proxy = new QtMetaObjectProxy(ctx, mo);
+    QObjectProxy *proxy = new QObjectProxy(ctx, mo);
     binding->addProxyToCache(className, proxy);
     return proxy->m_classObj;
 }
@@ -69,7 +69,7 @@ Binding::~Binding()
     }
 }
 
-QtMetaObjectProxy *Binding::getCachedProxy(QString key)
+QObjectProxy *Binding::getCachedProxy(QString key)
 {
     try
     {
@@ -81,7 +81,7 @@ QtMetaObjectProxy *Binding::getCachedProxy(QString key)
     }
 }
 
-void Binding::addProxyToCache(QString key, QtMetaObjectProxy *proxy)
+void Binding::addProxyToCache(QString key, QObjectProxy *proxy)
 {
     m_classCache[key] = proxy;
 }

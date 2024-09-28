@@ -99,7 +99,7 @@ add_library(plugin SHARED
   ${PLUGIN_PATH}/renderer.cpp
   ${PLUGIN_PATH}/view.cpp
   ${PLUGIN_PATH}/binding/binding.cpp
-  ${PLUGIN_PATH}/binding/qt_meta_object_proxy.cpp
+  ${PLUGIN_PATH}/binding/q_object_proxy.cpp
 )
 target_include_directories(plugin PRIVATE ./src/plugin)
 target_include_directories(plugin PRIVATE ./src/plugin/binding)

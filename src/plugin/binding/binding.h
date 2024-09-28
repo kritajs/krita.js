@@ -3,7 +3,7 @@
 #include <QString>
 #include <QStringList>
 #include <Ultralight/CAPI.h>
-#include "qt_meta_object_proxy.h"
+#include "q_object_proxy.h"
 
 typedef QString (*TransformPropertyNameCallback)(const QString &requestedName);
 
@@ -22,9 +22,9 @@ public:
     Binding(JSContextRef ctx, QStringList libsToSearch, TransformPropertyNameCallback transformPropertyNameCallback);
     ~Binding();
 
-    QtMetaObjectProxy *getCachedProxy(QString key);
-    void addProxyToCache(QString key, QtMetaObjectProxy *proxy);
+    QObjectProxy *getCachedProxy(QString key);
+    void addProxyToCache(QString key, QObjectProxy *proxy);
 
 private:
-    std::unordered_map<QString, QtMetaObjectProxy *> m_classCache;
+    std::unordered_map<QString, QObjectProxy *> m_classCache;
 };
