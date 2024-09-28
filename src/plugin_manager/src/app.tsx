@@ -3,8 +3,8 @@ import { createRoot } from "react-dom/client";
 
 function onClick() {
   console.log("JS BUTTON CLICKED");
-  console.log(Q.QObject);
-  console.log(Q.QPushButton);
+  console.log(Q.Object);
+  console.log(Q.PushButton);
   console.log(K.Krita);
 }
 

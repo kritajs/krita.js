@@ -6,7 +6,8 @@
 #include "binding.h"
 #include "qt_meta_object_proxy.h"
 
-// Returns a JSObjectRef for the libkis/Qt class named by `propertyName`. Returns a JS undefined value if class is not found.
+// Returns a constructor object for the class specified by propertyName.
+// Returns a JS undefined value if class is not found in any of the searched libraries.
 JSValueRef getProperty(JSContextRef ctx, JSObjectRef object, JSStringRef propertyName, JSValueRef *exception)
 {
     Binding *binding = static_cast<Binding *>(JSObjectGetPrivate(object));
@@ -22,9 +23,13 @@ JSValueRef getProperty(JSContextRef ctx, JSObjectRef object, JSStringRef propert
     QMetaObject *mo = nullptr;
     for (const auto &libName : binding->m_libsToSearch)
     {
+        QString realClassName = binding->m_getClassNameCallback(className);
         QLibrary lib(libName);
         // Black magic - this relies on the Itanium ABI name mangling scheme
-        QString staticMetaObjectSymbol = QString("_ZN%1%2").arg(className.size()).arg(className) + "16staticMetaObjectE";
+        QString staticMetaObjectSymbol = QString("_ZN%1%2")
+                                             .arg(realClassName.size())
+                                             .arg(realClassName) +
+                                         "16staticMetaObjectE";
         mo = (QMetaObject *)lib.resolve(staticMetaObjectSymbol.toLocal8Bit().constData());
         if (mo)
         {
@@ -57,7 +62,11 @@ JSValueRef getProperty(JSContextRef ctx, JSObjectRef object, JSStringRef propert
     // return classObj;
 }
 
-Binding::Binding(JSContextRef ctx, QStringList libsToSearch) : m_libsToSearch(libsToSearch)
+Binding::Binding(JSContextRef ctx,
+                 QStringList libsToSearch,
+                 GetClassNameCallback getClassNameCallback)
+    : m_libsToSearch(libsToSearch),
+      m_getClassNameCallback(getClassNameCallback)
 {
     JSClassDefinition definition = kJSClassDefinitionEmpty;
     definition.getProperty = &getProperty;

@@ -124,7 +124,13 @@ void View::_onViewDOMReady()
     // - GUI
     // - Widgets
     QStringList qtLibs = {"Qt5Core", "Qt5Gui", "Qt5Widgets"};
-    Binding *qtBinding = new Binding(ctx, qtLibs);
+    auto getQtClassName = [](const QString &requestedName)
+    {
+        // We want to expose Qt classes to JS without the "Q" prefix so we add the "Q"
+        // back in when the Binding class needs to search for the requested Qt class
+        return QString("Q") + requestedName;
+    };
+    Binding *qtBinding = new Binding(ctx, qtLibs, getQtClassName);
     m_bindings.append(qtBinding);
     JSStringRef qClassName = JSStringCreateWithUTF8CString("Q");
     JSObjectSetProperty(ctx, globalObj, qClassName, qtBinding->m_classObj, attrs, NULL);
@@ -132,7 +138,11 @@ void View::_onViewDOMReady()
 
     // Create and expose the K class on the global object.
     QStringList kritaLibs = {"libkritalibkis"};
-    Binding *kritaBinding = new Binding(ctx, kritaLibs);
+    auto getKritaClassName = [](const QString &requestedName)
+    {
+        return requestedName;
+    };
+    Binding *kritaBinding = new Binding(ctx, kritaLibs, getKritaClassName);
     m_bindings.append(kritaBinding);
     JSStringRef kritaClassName = JSStringCreateWithUTF8CString("K");
     JSObjectSetProperty(ctx, globalObj, kritaClassName, kritaBinding->m_classObj, attrs, NULL);
