@@ -16,6 +16,7 @@ View::View(QWidget *parent, ULView view) : QWidget(parent), m_view(view)
 
     // Enable mouse move events
     setMouseTracking(true);
+    // setAttribute(Qt::WA_TransparentForMouseEvents);
 }
 
 View::~View()
@@ -37,31 +38,36 @@ void View::paintEvent(QPaintEvent *)
     ULSurface surface = ulViewGetSurface(m_view);
     ULBitmap bitmap = ulBitmapSurfaceGetBitmap(surface);
     void *pixelBuffer = ulBitmapLockPixels(bitmap);
+    QImage img = QImage(
+        static_cast<const uchar *>(pixelBuffer),
+        ulBitmapGetWidth(bitmap),
+        ulBitmapGetHeight(bitmap),
+        QImage::Format_ARGB32);
     QPainter painter(this);
-    painter.drawImage(QPoint(0, 0), m_img);
+    painter.drawImage(QPoint(0, 0), img);
     ulBitmapUnlockPixels(bitmap);
     ulSurfaceClearDirtyBounds(surface);
 }
 
 void View::mousePressEvent(QMouseEvent *event)
 {
-    ULMouseEvent e = ulCreateMouseEvent(kMouseEventType_MouseDown, event->x(), event->y(), kMouseButton_None);
-    ulViewFireMouseEvent(m_view, e);
-    ulDestroyMouseEvent(e);
+    // ULMouseEvent e = ulCreateMouseEvent(kMouseEventType_MouseDown, event->x(), event->y(), kMouseButton_None);
+    // ulViewFireMouseEvent(m_view, e);
+    // ulDestroyMouseEvent(e);
 }
 
 void View::mouseReleaseEvent(QMouseEvent *event)
 {
-    ULMouseEvent e = ulCreateMouseEvent(kMouseEventType_MouseUp, event->x(), event->y(), kMouseButton_None);
-    ulViewFireMouseEvent(m_view, e);
-    ulDestroyMouseEvent(e);
+    // ULMouseEvent e = ulCreateMouseEvent(kMouseEventType_MouseUp, event->x(), event->y(), kMouseButton_None);
+    // ulViewFireMouseEvent(m_view, e);
+    // ulDestroyMouseEvent(e);
 }
 
 void View::mouseMoveEvent(QMouseEvent *event)
 {
-    ULMouseEvent e = ulCreateMouseEvent(kMouseEventType_MouseMoved, event->x(), event->y(), kMouseButton_None);
-    ulViewFireMouseEvent(m_view, e);
-    ulDestroyMouseEvent(e);
+    // ULMouseEvent e = ulCreateMouseEvent(kMouseEventType_MouseMoved, event->x(), event->y(), kMouseButton_None);
+    // ulViewFireMouseEvent(m_view, e);
+    // ulDestroyMouseEvent(e);
 }
 
 void View::onViewDOMReady(void *user_data,
@@ -155,16 +161,7 @@ void View::_onViewLoaded()
 {
     qDebug("VIEW LOADED");
 
-    ULSurface surface = ulViewGetSurface(m_view);
-    ULBitmap bitmap = ulBitmapSurfaceGetBitmap(surface);
-    void *pixelBuffer = ulBitmapLockPixels(bitmap);
-    m_img = QImage(
-        static_cast<const uchar *>(pixelBuffer),
-        ulBitmapGetWidth(bitmap),
-        ulBitmapGetHeight(bitmap),
-        QImage::Format_ARGB32);
     m_isReady = true;
-    ulBitmapUnlockPixels(bitmap);
     update(); // Queue paint event
 }
 

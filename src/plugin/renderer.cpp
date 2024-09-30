@@ -33,7 +33,9 @@ Renderer::Renderer(QObject *parent, const char *_basePath) : QObject(parent)
     QTimer *timer = new QTimer(this);
     timer->setObjectName("krita.js timer");
     QObject::connect(timer, &QTimer::timeout, this, &Renderer::tick);
-    timer->start(50);
+    timer->start(0);
+
+    setObjectName("krita.js Renderer");
 }
 
 Renderer::~Renderer()
@@ -44,19 +46,37 @@ Renderer::~Renderer()
 View *Renderer::createView(QWidget *parent)
 {
     ULViewConfig viewConfig = ulCreateViewConfig();
-    // ulViewConfigSetInitialDeviceScale(viewConfig, 2.0);
     // Use CPU acceleration so that we can request a bitmap. We use QPainter to render the bitmap.
     ulViewConfigSetIsAccelerated(viewConfig, false);
-    ULView ulView = ulCreateView(m_renderer, 640, 480, viewConfig, NULL);
+    ULView ulView = ulCreateView(m_renderer, parent->width(), parent->height(), viewConfig, NULL);
     ulDestroyViewConfig(viewConfig);
 
     View *view = new View(parent, ulView);
     m_views.append(view);
+    view->setObjectName(QString("krita.js View #%1").arg(m_views.count()));
     return view;
 }
 
 void Renderer::tick()
 {
+    // Check if any views need to be resized
+    for (int i = 0; i < m_views.size(); ++i)
+    {
+        View *view = m_views.at(i);
+        if (!view->m_isReady || !view->isVisible())
+            continue;
+
+        QWidget *parent = view->parentWidget();
+        if (view->width() != parent->width() || view->height() != parent->height())
+        {
+            view->resize(parent->width(), parent->height());
+            ulViewResize(view->m_view, parent->width(), parent->height());
+        }
+    }
+
+    // Any resizing should be done before these calls. If ulViewResize is called,
+    // the bitmap will be cleared so we need to render again to repopulate the
+    // bitmap.
     ulUpdate(m_renderer);
     ulRender(m_renderer);
 
@@ -64,7 +84,7 @@ void Renderer::tick()
     for (int i = 0; i < m_views.size(); ++i)
     {
         View *view = m_views.at(i);
-        if (!view->m_isReady)
+        if (!view->m_isReady || !view->isVisible())
             continue;
 
         ULSurface surface = ulViewGetSurface(view->m_view);

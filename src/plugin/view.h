@@ -45,7 +45,6 @@ protected:
                                      ULString source_id);
 
 private:
-    QImage m_img;
     QList<Binding *> m_bindings;
 
     void _onViewDOMReady();

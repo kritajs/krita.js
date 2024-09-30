@@ -27,14 +27,6 @@ KRITAJS_EXPORT void initialize(const char *basePath)
     qDebug() << "Initializing krita.js...";
     Krita *krita = Krita::instance();
     renderer = new Renderer(krita, basePath);
-
-    // QDockWidget *pluginManager = new QDockWidget(qwindow);
-    // pluginManager->setObjectName("krita.js Plugin Manager");
-    // View *pluginManagerView = renderer->createView(0);
-    // pluginManager->setWidget(pluginManagerView);
-    // pluginManager->move(200, 200);
-    // pluginManager->resize(640, 480);
-    // pluginManager->show();
 }
 
 // Start rendering. This should only be called when Krita's main window has been created.
@@ -45,5 +37,7 @@ KRITAJS_EXPORT void start()
         qWarning("Tried to start krita.js rendering but renderer has not been initialized.");
     }
 
-    qDebug("STARTING KRITA.JS RENDERING");
+    QMainWindow *qwin = Krita::instance()->activeWindow()->qwindow();
+    View *view = renderer->createView(qwin);
+    view->show();
 }
