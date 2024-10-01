@@ -46,6 +46,7 @@ Renderer::~Renderer()
 View *Renderer::createView(QWidget *parent)
 {
     ULViewConfig viewConfig = ulCreateViewConfig();
+    ulViewConfigSetIsTransparent(viewConfig, true);
     // Use CPU acceleration so that we can request a bitmap. We use QPainter to render the bitmap.
     ulViewConfigSetIsAccelerated(viewConfig, false);
     ULView ulView = ulCreateView(m_renderer, parent->width(), parent->height(), viewConfig, NULL);

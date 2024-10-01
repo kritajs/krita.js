@@ -1,6 +1,12 @@
+#include <QBitmap>
 #include <QDebug>
+#include <QMouseEvent>
 #include <QPainter>
+#include <QPixmap>
+#include "binding.h"
 #include "view.h"
+
+#define BYTES_PER_PIXEL 4
 
 View::View(QWidget *parent, ULView view) : QWidget(parent), m_view(view)
 {
@@ -14,9 +20,8 @@ View::View(QWidget *parent, ULView view) : QWidget(parent), m_view(view)
     ulViewSetFinishLoadingCallback(m_view, &onViewLoaded, this);
     ulViewSetAddConsoleMessageCallback(m_view, &onViewConsoleMessage, this);
 
-    // Enable mouse move events
-    setMouseTracking(true);
-    // setAttribute(Qt::WA_TransparentForMouseEvents);
+    // Enable hover events
+    setAttribute(Qt::WA_Hover);
 }
 
 View::~View()
@@ -24,6 +29,30 @@ View::~View()
     ulDestroyView(m_view);
     qDeleteAll(m_bindings.begin(), m_bindings.end());
     m_bindings.clear();
+}
+
+bool View::event(QEvent *e)
+{
+    switch (e->type())
+    {
+    case QEvent::MouseButtonPress:
+        handleMouseEvent(static_cast<QMouseEvent *>(e)->pos(), kMouseEventType_MouseDown);
+        return true;
+
+    case QEvent::MouseButtonRelease:
+        handleMouseEvent(static_cast<QMouseEvent *>(e)->pos(), kMouseEventType_MouseUp);
+        return true;
+
+    case QEvent::HoverEnter:
+    case QEvent::HoverLeave:
+    case QEvent::HoverMove:
+        handleMouseEvent(static_cast<QHoverEvent *>(e)->pos(), kMouseEventType_MouseMoved);
+        return true;
+
+    default:
+        break;
+    }
+    return QWidget::event(e);
 }
 
 void View::paintEvent(QPaintEvent *)
@@ -45,29 +74,9 @@ void View::paintEvent(QPaintEvent *)
         QImage::Format_ARGB32);
     QPainter painter(this);
     painter.drawImage(QPoint(0, 0), img);
+    setMask(QPixmap::fromImage(img).mask());
     ulBitmapUnlockPixels(bitmap);
     ulSurfaceClearDirtyBounds(surface);
-}
-
-void View::mousePressEvent(QMouseEvent *event)
-{
-    // ULMouseEvent e = ulCreateMouseEvent(kMouseEventType_MouseDown, event->x(), event->y(), kMouseButton_None);
-    // ulViewFireMouseEvent(m_view, e);
-    // ulDestroyMouseEvent(e);
-}
-
-void View::mouseReleaseEvent(QMouseEvent *event)
-{
-    // ULMouseEvent e = ulCreateMouseEvent(kMouseEventType_MouseUp, event->x(), event->y(), kMouseButton_None);
-    // ulViewFireMouseEvent(m_view, e);
-    // ulDestroyMouseEvent(e);
-}
-
-void View::mouseMoveEvent(QMouseEvent *event)
-{
-    // ULMouseEvent e = ulCreateMouseEvent(kMouseEventType_MouseMoved, event->x(), event->y(), kMouseButton_None);
-    // ulViewFireMouseEvent(m_view, e);
-    // ulDestroyMouseEvent(e);
 }
 
 void View::onViewDOMReady(void *user_data,
@@ -163,6 +172,13 @@ void View::_onViewLoaded()
 
     m_isReady = true;
     update(); // Queue paint event
+}
+
+void View::handleMouseEvent(const QPoint &pos, ULMouseEventType type)
+{
+    ULMouseEvent e = ulCreateMouseEvent(type, pos.x(), pos.y(), kMouseButton_None);
+    ulViewFireMouseEvent(m_view, e);
+    ulDestroyMouseEvent(e);
 }
 
 #include "moc_view.cpp"

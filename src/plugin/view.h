@@ -1,9 +1,10 @@
 #pragma once
 
-#include <QMouseEvent>
 #include <QWidget>
 #include <Ultralight/CAPI.h>
-#include "binding.h"
+
+class Binding;
+class QEvent;
 
 class View : public QWidget
 {
@@ -18,10 +19,8 @@ public:
     ~View();
 
 protected:
+    bool event(QEvent *e);
     void paintEvent(QPaintEvent *);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
 
     static void onViewDOMReady(void *user_data,
                                ULView caller,
@@ -49,4 +48,5 @@ private:
 
     void _onViewDOMReady();
     void _onViewLoaded();
+    void handleMouseEvent(const QPoint &pos, ULMouseEventType type);
 };
