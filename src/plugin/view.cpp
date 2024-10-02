@@ -108,10 +108,12 @@ void View::paintEvent(QPaintEvent *)
     ULSurface surface = ulViewGetSurface(m_view);
     ULBitmap bitmap = ulBitmapSurfaceGetBitmap(surface);
     void *pixelBuffer = ulBitmapLockPixels(bitmap);
+    unsigned int bytesPerRow = ulBitmapGetRowBytes(bitmap);
     QImage img = QImage(
         static_cast<const uchar *>(pixelBuffer),
         ulBitmapGetWidth(bitmap),
         ulBitmapGetHeight(bitmap),
+        bytesPerRow,
         QImage::Format_ARGB32);
     QPainter painter(this);
     painter.drawImage(QPoint(0, 0), img);
