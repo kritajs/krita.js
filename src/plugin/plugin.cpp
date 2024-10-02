@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <QDebug>
-#include <QDockWidget>
 #include <QMainWindow>
 #include "Krita.h"
 #include "Window.h"

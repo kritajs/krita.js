@@ -1,5 +1,4 @@
 #include <QDebug>
-#include <QMetaMethod>
 #include "q_object_proxy.h"
 
 JSValueRef getProperty(JSContextRef ctx, JSClassRef jsClass, JSObjectRef object, JSStringRef propertyName, JSValueRef *exception)

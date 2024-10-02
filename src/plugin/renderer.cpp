@@ -1,7 +1,6 @@
 #include <QDebug>
 #include <QTimer>
 #include <AppCore/CAPI.h>
-#include <JavaScriptCore/JavaScript.h>
 #include "renderer.h"
 
 Renderer::Renderer(QObject *parent, const char *_basePath) : QObject(parent)

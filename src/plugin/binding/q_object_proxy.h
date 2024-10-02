@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QMetaObject>
-#include <QString>
 #include <Ultralight/CAPI.h>
 
 class QObjectProxy

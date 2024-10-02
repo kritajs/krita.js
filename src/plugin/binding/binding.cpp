@@ -1,8 +1,6 @@
 #include <unordered_map>
 #include <QDebug>
 #include <QLibrary>
-#include <QMetaType>
-#include <QString>
 #include "binding.h"
 #include "q_object_proxy.h"
 

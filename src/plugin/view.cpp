@@ -16,9 +16,50 @@ View::View(QWidget *parent, ULView view) : QWidget(parent), m_view(view)
     ulDestroyString(entryUrl);
 
     // Register callbacks
-    ulViewSetDOMReadyCallback(m_view, &onViewDOMReady, this);
-    ulViewSetFinishLoadingCallback(m_view, &onViewLoaded, this);
-    ulViewSetAddConsoleMessageCallback(m_view, &onViewConsoleMessage, this);
+    auto onViewDOMReady = [](void *user_data,
+                             ULView caller,
+                             unsigned long long frame_id,
+                             bool is_main_frame,
+                             ULString url)
+    {
+        View *view = static_cast<View *>(user_data);
+        view->handleViewDOMReady();
+    };
+    ulViewSetDOMReadyCallback(m_view, onViewDOMReady, this);
+
+    auto onViewLoaded = [](void *user_data,
+                           ULView caller,
+                           unsigned long long frame_id,
+                           bool is_main_frame,
+                           ULString url)
+    {
+        if (is_main_frame)
+        {
+            View *view = static_cast<View *>(user_data);
+            view->handleViewLoaded();
+        }
+    };
+    ulViewSetFinishLoadingCallback(m_view, onViewLoaded, this);
+
+    auto onViewConsoleMessage = [](void *user_data,
+                                   ULView caller,
+                                   ULMessageSource source,
+                                   ULMessageLevel level,
+                                   ULString message,
+                                   unsigned int line_number,
+                                   unsigned int column_number,
+                                   ULString source_id)
+    {
+        // Separate calls to qDebug will result in new lines so we re-use the same qDebug to prevent that
+        auto dbg = qDebug();
+        dbg << ulStringGetData(message);
+
+        if (source == kMessageSource_JS)
+        {
+            dbg << " (" << ulStringGetData(source_id) << " @ line " << line_number << ", col " << column_number << ")";
+        }
+    };
+    ulViewSetAddConsoleMessageCallback(m_view, onViewConsoleMessage, this);
 
     // Enable hover events
     setAttribute(Qt::WA_Hover);
@@ -79,49 +120,7 @@ void View::paintEvent(QPaintEvent *)
     ulSurfaceClearDirtyBounds(surface);
 }
 
-void View::onViewDOMReady(void *user_data,
-                          ULView caller,
-                          unsigned long long frame_id,
-                          bool is_main_frame,
-                          ULString url)
-{
-    View *view = static_cast<View *>(user_data);
-    view->_onViewDOMReady();
-}
-
-void View::onViewLoaded(void *user_data,
-                        ULView caller,
-                        unsigned long long frame_id,
-                        bool is_main_frame,
-                        ULString url)
-{
-    if (is_main_frame)
-    {
-        View *view = static_cast<View *>(user_data);
-        view->_onViewLoaded();
-    }
-}
-
-void View::onViewConsoleMessage(void *user_data,
-                                ULView caller,
-                                ULMessageSource source,
-                                ULMessageLevel level,
-                                ULString message,
-                                unsigned int line_number,
-                                unsigned int column_number,
-                                ULString source_id)
-{
-    // Separate calls to qDebug will result in new lines so we re-use the same qDebug to prevent that
-    auto dbg = qDebug();
-    dbg << ulStringGetData(message);
-
-    if (source == kMessageSource_JS)
-    {
-        dbg << " (" << ulStringGetData(source_id) << " @ line " << line_number << ", col " << column_number << ")";
-    }
-}
-
-void View::_onViewDOMReady()
+void View::handleViewDOMReady()
 {
     // Once the DOM is ready, we expose two classes on the global object:
     // - Q: allows JS to access any Qt class by using `Q.<className>`.
@@ -166,7 +165,7 @@ void View::_onViewDOMReady()
     ulViewUnlockJSContext(m_view);
 }
 
-void View::_onViewLoaded()
+void View::handleViewLoaded()
 {
     qDebug("VIEW LOADED");
 
