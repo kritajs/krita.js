@@ -6,11 +6,10 @@
 class Binding;
 class QEvent;
 
-class View : public QWidget
-{
+class View : public QWidget {
     Q_OBJECT
 
-public:
+  public:
     ULView m_view;
     // Whether this view is ready to be rendered
     bool m_isReady = false;
@@ -18,11 +17,11 @@ public:
     View(QWidget *parent, ULView view);
     ~View();
 
-protected:
+  protected:
     bool event(QEvent *e);
     void paintEvent(QPaintEvent *);
 
-private:
+  private:
     QList<Binding *> m_bindings;
 
     void handleViewDOMReady();

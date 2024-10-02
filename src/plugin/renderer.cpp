@@ -1,12 +1,11 @@
+#include "renderer.h"
+#include <AppCore/CAPI.h>
 #include <QDebug>
 #include <QEvent>
 #include <QResizeEvent>
 #include <QTimer>
-#include <AppCore/CAPI.h>
-#include "renderer.h"
 
-Renderer::Renderer(QObject *parent, const char *_basePath) : QObject(parent)
-{
+Renderer::Renderer(QObject *parent, const char *_basePath) : QObject(parent) {
     // Enable required platform handlers
     // Use the OS's native font loader
     ulEnablePlatformFontLoader();
@@ -30,7 +29,8 @@ Renderer::Renderer(QObject *parent, const char *_basePath) : QObject(parent)
     // Allow remote inspection
     ulStartRemoteInspectorServer(m_renderer, "127.0.0.1", 19998);
 
-    // Hook into Krita/Qt's event loop so that we can continuously update Ultralight
+    // Hook into Krita/Qt's event loop so that we can continuously update
+    // Ultralight
     QTimer *timer = new QTimer(this);
     timer->setObjectName("krita.js timer");
     QObject::connect(timer, &QTimer::timeout, this, &Renderer::tick);
@@ -39,18 +39,12 @@ Renderer::Renderer(QObject *parent, const char *_basePath) : QObject(parent)
     setObjectName("krita.js Renderer");
 }
 
-Renderer::~Renderer()
-{
-    ulDestroyRenderer(m_renderer);
-}
+Renderer::~Renderer() { ulDestroyRenderer(m_renderer); }
 
-bool Renderer::eventFilter(QObject *object, QEvent *event)
-{
-    if (event->type() == QEvent::Resize)
-    {
-        QResizeEvent *resizeEvent = static_cast<QResizeEvent*>(event);
-        for (int i = 0; i < m_views.size(); ++i)
-        {
+bool Renderer::eventFilter(QObject *object, QEvent *event) {
+    if (event->type() == QEvent::Resize) {
+        QResizeEvent *resizeEvent = static_cast<QResizeEvent *>(event);
+        for (int i = 0; i < m_views.size(); ++i) {
             View *view = m_views.at(i);
             QSize newSize = resizeEvent->size();
             if (!view->m_isReady)
@@ -58,8 +52,8 @@ bool Renderer::eventFilter(QObject *object, QEvent *event)
 
             view->resize(newSize.width(), newSize.height());
             ulViewResize(view->m_view, newSize.width(), newSize.height());
-            // If ulViewResize is called, the bitmap will be cleared so we need to render
-            // again to repopulate the bitmap.
+            // If ulViewResize is called, the bitmap will be cleared so we need
+            // to render again to repopulate the bitmap.
             ulRender(m_renderer);
         }
     }
@@ -67,13 +61,14 @@ bool Renderer::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
-View *Renderer::createView(QWidget *parent)
-{
+View *Renderer::createView(QWidget *parent) {
     ULViewConfig viewConfig = ulCreateViewConfig();
     ulViewConfigSetIsTransparent(viewConfig, true);
-    // Use CPU acceleration so that we can request a bitmap. We use QPainter to render the bitmap.
+    // Use CPU acceleration so that we can request a bitmap. We use QPainter to
+    // render the bitmap.
     ulViewConfigSetIsAccelerated(viewConfig, false);
-    ULView ulView = ulCreateView(m_renderer, parent->width(), parent->height(), viewConfig, NULL);
+    ULView ulView = ulCreateView(m_renderer, parent->width(), parent->height(),
+                                 viewConfig, NULL);
     ulDestroyViewConfig(viewConfig);
 
     View *view = new View(parent, ulView);
@@ -84,24 +79,21 @@ View *Renderer::createView(QWidget *parent)
     return view;
 }
 
-void Renderer::tick()
-{
-    // Any resizing should be done before these calls. If ulViewResize is called,
-    // the bitmap will be cleared so we need to render again to repopulate the
-    // bitmap.
+void Renderer::tick() {
+    // Any resizing should be done before these calls. If ulViewResize is
+    // called, the bitmap will be cleared so we need to render again to
+    // repopulate the bitmap.
     ulUpdate(m_renderer);
     ulRender(m_renderer);
 
     // Queue a repaint if any views need repainting
-    for (int i = 0; i < m_views.size(); ++i)
-    {
+    for (int i = 0; i < m_views.size(); ++i) {
         View *view = m_views.at(i);
         if (!view->m_isReady || !view->isVisible())
             continue;
 
         ULSurface surface = ulViewGetSurface(view->m_view);
-        if (!ulIntRectIsEmpty(ulSurfaceGetDirtyBounds(surface)))
-        {
+        if (!ulIntRectIsEmpty(ulSurfaceGetDirtyBounds(surface))) {
             qDebug("QUEUE PAINT");
             view->update();
         }
