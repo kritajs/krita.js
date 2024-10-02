@@ -37,6 +37,7 @@ KRITAJS_EXPORT void start()
     }
 
     QMainWindow *qwin = Krita::instance()->activeWindow()->qwindow();
+    qwin->installEventFilter(renderer);
     View *view = renderer->createView(qwin);
     view->show();
 }

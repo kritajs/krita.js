@@ -1,4 +1,6 @@
 #include <QDebug>
+#include <QEvent>
+#include <QResizeEvent>
 #include <QTimer>
 #include <AppCore/CAPI.h>
 #include "renderer.h"
@@ -42,6 +44,29 @@ Renderer::~Renderer()
     ulDestroyRenderer(m_renderer);
 }
 
+bool Renderer::eventFilter(QObject *object, QEvent *event)
+{
+    if (event->type() == QEvent::Resize)
+    {
+        QResizeEvent *resizeEvent = static_cast<QResizeEvent*>(event);
+        for (int i = 0; i < m_views.size(); ++i)
+        {
+            View *view = m_views.at(i);
+            QSize newSize = resizeEvent->size();
+            if (!view->m_isReady)
+                continue;
+
+            view->resize(newSize.width(), newSize.height());
+            ulViewResize(view->m_view, newSize.width(), newSize.height());
+            // If ulViewResize is called, the bitmap will be cleared so we need to render
+            // again to repopulate the bitmap.
+            ulRender(m_renderer);
+        }
+    }
+
+    return false;
+}
+
 View *Renderer::createView(QWidget *parent)
 {
     ULViewConfig viewConfig = ulCreateViewConfig();
@@ -52,28 +77,15 @@ View *Renderer::createView(QWidget *parent)
     ulDestroyViewConfig(viewConfig);
 
     View *view = new View(parent, ulView);
-    m_views.append(view);
     view->setObjectName(QString("krita.js View #%1").arg(m_views.count()));
+    view->resize(parent->width(), parent->height());
+    ulViewResize(view->m_view, parent->width(), parent->height());
+    m_views.append(view);
     return view;
 }
 
 void Renderer::tick()
 {
-    // Check if any views need to be resized
-    for (int i = 0; i < m_views.size(); ++i)
-    {
-        View *view = m_views.at(i);
-        if (!view->m_isReady || !view->isVisible())
-            continue;
-
-        QWidget *parent = view->parentWidget();
-        if (view->width() != parent->width() || view->height() != parent->height())
-        {
-            view->resize(parent->width(), parent->height());
-            ulViewResize(view->m_view, parent->width(), parent->height());
-        }
-    }
-
     // Any resizing should be done before these calls. If ulViewResize is called,
     // the bitmap will be cleared so we need to render again to repopulate the
     // bitmap.

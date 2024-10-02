@@ -11,6 +11,7 @@ class Renderer : public QObject
 public:
     Renderer(QObject *parent, const char *_basePath);
     ~Renderer();
+    bool eventFilter(QObject *object, QEvent *event);
     View *createView(QWidget *parent);
 
 private:

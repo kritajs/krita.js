@@ -1,5 +1,12 @@
+# clangd
+.cache/
+
+# Visual Studio Code
 .vscode/
 *.code-workspace
+
+# CMake
 build/
 build_package/
+
 deps/
