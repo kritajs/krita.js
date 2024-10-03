@@ -2,10 +2,15 @@
 #include <AppCore/CAPI.h>
 #include <QDebug>
 #include <QEvent>
+#include <QPointer>
 #include <QResizeEvent>
 #include <QTimer>
 
-Renderer::Renderer(QObject *parent, const char *_basePath) : QObject(parent) {
+#define INSPECTOR_PORT 19998
+
+Renderer::~Renderer() { ulDestroyRenderer(m_renderer); }
+
+void Renderer::initialize(const char *_basePath) {
     // Enable required platform handlers
     // Use the OS's native font loader
     ulEnablePlatformFontLoader();
@@ -27,25 +32,23 @@ Renderer::Renderer(QObject *parent, const char *_basePath) : QObject(parent) {
     ulDestroyConfig(config);
 
     // Allow remote inspection
-    ulStartRemoteInspectorServer(m_renderer, "127.0.0.1", 19998);
+    ulStartRemoteInspectorServer(m_renderer, "127.0.0.1", INSPECTOR_PORT);
 
     // Hook into Krita/Qt's event loop so that we can continuously update
     // Ultralight
-    QTimer *timer = new QTimer(this);
+    QPointer<QTimer> timer = new QTimer(this);
     timer->setObjectName("krita.js timer");
     QObject::connect(timer, &QTimer::timeout, this, &Renderer::tick);
     timer->start(0);
 
     setObjectName("krita.js Renderer");
+    m_initialized = true;
 }
-
-Renderer::~Renderer() { ulDestroyRenderer(m_renderer); }
 
 bool Renderer::eventFilter(QObject *object, QEvent *event) {
     if (event->type() == QEvent::Resize) {
-        QResizeEvent *resizeEvent = static_cast<QResizeEvent *>(event);
-        for (int i = 0; i < m_views.size(); ++i) {
-            View *view = m_views.at(i);
+        auto *resizeEvent = static_cast<QResizeEvent *>(event);
+        for (auto view : m_views) {
             QSize newSize = resizeEvent->size();
             if (!view->m_isReady)
                 continue;
@@ -68,10 +71,10 @@ View *Renderer::createView(QWidget *parent) {
     // render the bitmap.
     ulViewConfigSetIsAccelerated(viewConfig, false);
     ULView ulView = ulCreateView(m_renderer, parent->width(), parent->height(),
-                                 viewConfig, NULL);
+                                 viewConfig, nullptr);
     ulDestroyViewConfig(viewConfig);
 
-    View *view = new View(parent, ulView);
+    QPointer<View> view = new View(parent, ulView);
     view->setObjectName(QString("krita.js View #%1").arg(m_views.count()));
     view->resize(parent->width(), parent->height());
     ulViewResize(view->m_view, parent->width(), parent->height());
@@ -80,21 +83,17 @@ View *Renderer::createView(QWidget *parent) {
 }
 
 void Renderer::tick() {
-    // Any resizing should be done before these calls. If ulViewResize is
-    // called, the bitmap will be cleared so we need to render again to
-    // repopulate the bitmap.
     ulUpdate(m_renderer);
     ulRender(m_renderer);
 
     // Queue a repaint if any views need repainting
-    for (int i = 0; i < m_views.size(); ++i) {
-        View *view = m_views.at(i);
+    for (auto view : m_views) {
         if (!view->m_isReady || !view->isVisible())
             continue;
 
         ULSurface surface = ulViewGetSurface(view->m_view);
         if (!ulIntRectIsEmpty(ulSurfaceGetDirtyBounds(surface))) {
-            qDebug("QUEUE PAINT");
+            qDebug() << "QUEUE PAINT";
             view->update();
         }
     }

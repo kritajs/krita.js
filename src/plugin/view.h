@@ -15,11 +15,11 @@ class View : public QWidget {
     bool m_isReady = false;
 
     View(QWidget *parent, ULView view);
-    ~View();
+    ~View() override;
 
   protected:
-    bool event(QEvent *e);
-    void paintEvent(QPaintEvent *);
+    bool event(QEvent *e) override;
+    void paintEvent(QPaintEvent *) override;
 
   private:
     QList<Binding *> m_bindings;

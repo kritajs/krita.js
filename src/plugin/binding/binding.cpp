@@ -2,20 +2,23 @@
 #include "q_object_proxy.h"
 #include <QDebug>
 #include <QLibrary>
+#include <memory>
 #include <unordered_map>
+#include <utility>
 
-// Returns a constructor object for the class specified by propertyName.
-// Returns a JS undefined value if class is not found in any of the searched
-// libraries.
+using namespace std;
+
+// Returns a constructor object for the class specified by propertyName. Returns
+// a JS undefined value if class is not found in any of the searched libraries.
 JSValueRef getProperty(JSContextRef ctx, JSObjectRef object,
                        JSStringRef propertyName, JSValueRef *exception) {
-    Binding *binding = static_cast<Binding *>(JSObjectGetPrivate(object));
-    QString className =
+    auto *binding = static_cast<Binding *>(JSObjectGetPrivate(object));
+    QString className = binding->transformPropertyName(
         QString::fromWCharArray(JSStringGetCharactersPtr(propertyName),
-                                JSStringGetLength(propertyName));
-    className = binding->transformPropertyName(className);
+                                // NOLINTNEXTLINE
+                                JSStringGetLength(propertyName)));
 
-    QObjectProxy *cachedProxy = binding->getCachedProxy(className);
+    shared_ptr<QObjectProxy> cachedProxy = binding->getCachedProxy(className);
     if (cachedProxy) {
         return cachedProxy->m_classObj;
     }
@@ -28,6 +31,7 @@ JSValueRef getProperty(JSContextRef ctx, JSObjectRef object,
         QString staticMetaObjectSymbol =
             QString("_ZN%1%2").arg(className.size()).arg(className) +
             "16staticMetaObjectE";
+        // NOLINTNEXTLINE
         mo = (QMetaObject *)lib.resolve(
             staticMetaObjectSymbol.toLocal8Bit().constData());
         if (mo) {
@@ -41,14 +45,14 @@ JSValueRef getProperty(JSContextRef ctx, JSObjectRef object,
         return JSValueMakeUndefined(ctx);
     }
 
-    QObjectProxy *proxy = new QObjectProxy(ctx, mo);
+    auto proxy = make_shared<QObjectProxy>(ctx, mo);
     binding->addProxyToCache(className, proxy);
     return proxy->m_classObj;
 }
 
 Binding::Binding(JSContextRef ctx, QStringList libsToSearch,
                  TransformPropertyNameCallback transformPropertyNameCallback)
-    : m_libsToSearch(libsToSearch),
+    : m_libsToSearch(move(libsToSearch)),
       transformPropertyName(transformPropertyNameCallback) {
     JSClassDefinition definition = kJSClassDefinitionEmpty;
     definition.getProperty = &getProperty;
@@ -57,20 +61,16 @@ Binding::Binding(JSContextRef ctx, QStringList libsToSearch,
     JSClassRelease(classRef);
 }
 
-Binding::~Binding() {
-    for (auto &[className, proxy] : m_classCache) {
-        delete proxy;
-    }
-}
+Binding::~Binding() { m_classCache.clear(); }
 
-QObjectProxy *Binding::getCachedProxy(QString key) {
+shared_ptr<QObjectProxy> Binding::getCachedProxy(QString key) {
     try {
         return m_classCache.at(key);
-    } catch (const std::exception &e) {
+    } catch (const exception &e) {
         return nullptr;
     }
 }
 
-void Binding::addProxyToCache(QString key, QObjectProxy *proxy) {
+void Binding::addProxyToCache(QString key, shared_ptr<QObjectProxy> proxy) {
     m_classCache[key] = proxy;
 }

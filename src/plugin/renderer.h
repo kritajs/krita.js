@@ -8,9 +8,11 @@ class Renderer : public QObject {
     Q_OBJECT
 
   public:
-    Renderer(QObject *parent, const char *_basePath);
-    ~Renderer();
-    bool eventFilter(QObject *object, QEvent *event);
+    bool m_initialized;
+
+    ~Renderer() override;
+    void initialize(const char *_basePath);
+    bool eventFilter(QObject *object, QEvent *event) override;
     View *createView(QWidget *parent);
 
   private:

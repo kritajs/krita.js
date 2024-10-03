@@ -86,15 +86,18 @@ void View::paintEvent(QPaintEvent *) {
     if (!m_isReady)
         return;
 
-    qDebug("PAINT EVENT");
+    qDebug() << "PAINT EVENT";
 
     ULSurface surface = ulViewGetSurface(m_view);
     ULBitmap bitmap = ulBitmapSurfaceGetBitmap(surface);
     void *pixelBuffer = ulBitmapLockPixels(bitmap);
     unsigned int bytesPerRow = ulBitmapGetRowBytes(bitmap);
-    QImage img = QImage(static_cast<const uchar *>(pixelBuffer),
-                        ulBitmapGetWidth(bitmap), ulBitmapGetHeight(bitmap),
-                        bytesPerRow, QImage::Format_ARGB32);
+    QImage img =
+        QImage(static_cast<const uchar *>(pixelBuffer),
+               // NOLINTNEXTLINE(cppcoreguidelines-narrowing-conversions)
+               ulBitmapGetWidth(bitmap), ulBitmapGetHeight(bitmap),
+               // NOLINTNEXTLINE(cppcoreguidelines-narrowing-conversions)
+               bytesPerRow, QImage::Format_ARGB32);
     QPainter painter(this);
     painter.drawImage(QPoint(0, 0), img);
     setMask(QPixmap::fromImage(img).mask());
@@ -126,11 +129,11 @@ void View::handleViewDOMReady() {
         // requested Qt class
         return QString("Q") + requestedName;
     };
-    Binding *qtBinding = new Binding(ctx, qtLibs, getQtClassName);
+    auto qtBinding = new Binding(ctx, qtLibs, getQtClassName);
     m_bindings.append(qtBinding);
     JSStringRef qClassName = JSStringCreateWithUTF8CString("Q");
     JSObjectSetProperty(ctx, globalObj, qClassName, qtBinding->m_classObj,
-                        attrs, NULL);
+                        attrs, nullptr);
     JSStringRelease(qClassName);
 
     // Create and expose the K class on the global object.
@@ -138,19 +141,18 @@ void View::handleViewDOMReady() {
     auto getKritaClassName = [](const QString &requestedName) {
         return requestedName;
     };
-    Binding *kritaBinding = new Binding(ctx, kritaLibs, getKritaClassName);
+    auto kritaBinding = new Binding(ctx, kritaLibs, getKritaClassName);
     m_bindings.append(kritaBinding);
     JSStringRef kritaClassName = JSStringCreateWithUTF8CString("K");
     JSObjectSetProperty(ctx, globalObj, kritaClassName,
-                        kritaBinding->m_classObj, attrs, NULL);
+                        kritaBinding->m_classObj, attrs, nullptr);
     JSStringRelease(kritaClassName);
 
     ulViewUnlockJSContext(m_view);
 }
 
 void View::handleViewLoaded() {
-    qDebug("VIEW LOADED");
-
+    qDebug() << "VIEW LOADED";
     m_isReady = true;
     update(); // Queue paint event
 }

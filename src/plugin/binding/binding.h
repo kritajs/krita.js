@@ -4,8 +4,10 @@
 #include <QString>
 #include <QStringList>
 #include <Ultralight/CAPI.h>
+#include <memory>
 
-typedef QString (*TransformPropertyNameCallback)(const QString &requestedName);
+using namespace std;
+using TransformPropertyNameCallback = QString (*)(const QString &);
 
 class Binding {
   public:
@@ -24,9 +26,9 @@ class Binding {
             TransformPropertyNameCallback transformPropertyNameCallback);
     ~Binding();
 
-    QObjectProxy *getCachedProxy(QString key);
-    void addProxyToCache(QString key, QObjectProxy *proxy);
+    shared_ptr<QObjectProxy> getCachedProxy(QString key);
+    void addProxyToCache(QString key, shared_ptr<QObjectProxy> proxy);
 
   private:
-    std::unordered_map<QString, QObjectProxy *> m_classCache;
+    unordered_map<QString, shared_ptr<QObjectProxy>> m_classCache;
 };
