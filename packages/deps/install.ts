@@ -1,10 +1,12 @@
 import fs from "fs";
-import { installUltralight } from "./installers/ultralight";
+import { installKrita } from "./installers/krita";
 import { installQt } from "./installers/qt";
+import { installUltralight } from "./installers/ultralight";
 
 export type InstallFn = (outputPath: string) => Promise<void>;
 
 const DEPENDENCY_INSTALLERS = {
+  krita: installKrita,
   qt: installQt,
   ultralight: installUltralight,
 } as const satisfies Record<string, InstallFn>;
