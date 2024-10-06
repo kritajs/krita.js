@@ -1,5 +1,5 @@
 {
-  "name": "kritajs-plugin-manager",
+  "name": "kritajs-frontend",
   "version": "0.1.0",
   "scripts": {
     "build": "esbuild src/app.tsx --target=es6 --bundle --minify",

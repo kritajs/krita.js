@@ -7,21 +7,21 @@ project(kritajs LANGUAGES CXX)
 set(DEPS_PATH ${CMAKE_SOURCE_DIR}/packages/deps/deps)
 
 # ==========================================================================================
-# BUILD PLUGIN MANAGER
+# BUILD JS FRONTEND
 # ==========================================================================================
 
-set(PLUGIN_MANAGER_PATH ${CMAKE_SOURCE_DIR}/src/plugin_manager)
-set(PLUGIN_MANAGER_OUTPUT_PATH ${CMAKE_BINARY_DIR}/plugin_manager)
+set(FRONTEND_PATH ${CMAKE_SOURCE_DIR}/src/frontend)
+set(FRONTEND_OUTPUT_PATH ${CMAKE_BINARY_DIR}/frontend)
 add_custom_target(
-  plugin_manager
-  WORKING_DIRECTORY ${PLUGIN_MANAGER_PATH}
-  COMMAND npm run build -- --outdir=${PLUGIN_MANAGER_OUTPUT_PATH}
-  COMMENT "Building krita.js Plugin Manager..."
+  frontend
+  WORKING_DIRECTORY ${FRONTEND_PATH}
+  COMMAND npm run build -- --outdir=${FRONTEND_OUTPUT_PATH}
+  COMMENT "Building krita.js frontend..."
 )
-file(MAKE_DIRECTORY ${PLUGIN_MANAGER_OUTPUT_PATH})
+file(MAKE_DIRECTORY ${FRONTEND_OUTPUT_PATH})
 
 # ==========================================================================================
-# BUILD C++ PLUGIN
+# BUILD C++ BACKEND
 # ==========================================================================================
 
 # Qt
@@ -76,22 +76,22 @@ set_target_properties(WebCore PROPERTIES
 target_include_directories(WebCore INTERFACE ${ULTRALIGHT_PATH}/include)
 
 # Compile krita.js plugin as a shared library
-set(PLUGIN_PATH ./src/plugin/src)
-add_library(plugin SHARED
-  ${PLUGIN_PATH}/plugin.cpp
-  ${PLUGIN_PATH}/renderer.cpp
-  ${PLUGIN_PATH}/view.cpp
-  ${PLUGIN_PATH}/binding/binding.cpp
-  ${PLUGIN_PATH}/binding/q_object_proxy.cpp
+set(BACKEND_PATH ./src/backend/src)
+add_library(backend SHARED
+  ${BACKEND_PATH}/plugin.cpp
+  ${BACKEND_PATH}/renderer.cpp
+  ${BACKEND_PATH}/view.cpp
+  ${BACKEND_PATH}/binding/binding.cpp
+  ${BACKEND_PATH}/binding/q_object_proxy.cpp
 )
-target_include_directories(plugin PRIVATE ${PLUGIN_PATH})
-target_include_directories(plugin PRIVATE ${PLUGIN_PATH}/binding)
-add_dependencies(plugin plugin_manager)
-target_link_libraries(plugin PRIVATE Qt5::Core Qt5::Widgets)
-target_link_libraries(plugin PRIVATE libkis)
-target_link_libraries(plugin PRIVATE AppCore Ultralight UltralightCore WebCore)
+target_include_directories(backend PRIVATE ${BACKEND_PATH})
+target_include_directories(backend PRIVATE ${BACKEND_PATH}/binding)
+add_dependencies(backend frontend)
+target_link_libraries(backend PRIVATE Qt5::Core Qt5::Widgets)
+target_link_libraries(backend PRIVATE libkis)
+target_link_libraries(backend PRIVATE AppCore Ultralight UltralightCore WebCore)
 # Set output directory and file name
-set_target_properties(plugin PROPERTIES OUTPUT_NAME kritajs)
+set_target_properties(backend PROPERTIES OUTPUT_NAME kritajs)
 
 # ==========================================================================================
 # PACKAGING
@@ -109,12 +109,12 @@ install(DIRECTORY ${ULTRALIGHT_PATH}/resources DESTINATION ${INSTALL_PATH}/asset
 # Copy Ultralight inspector
 # install(DIRECTORY ${ULTRALIGHT_PATH}/inspector DESTINATION ${INSTALL_PATH}/assets)
 
-# Copy plugin manager files
-install(DIRECTORY ${PLUGIN_MANAGER_PATH}/public/ DESTINATION ${INSTALL_PATH}/assets)
-install(DIRECTORY ${PLUGIN_MANAGER_OUTPUT_PATH}/ DESTINATION ${INSTALL_PATH}/assets)
+# Copy frontend files
+install(DIRECTORY ${FRONTEND_PATH}/public/ DESTINATION ${INSTALL_PATH}/assets)
+install(DIRECTORY ${FRONTEND_OUTPUT_PATH}/ DESTINATION ${INSTALL_PATH}/assets)
 
 # Copy required DLLs
-install(TARGETS plugin RUNTIME DESTINATION ${INSTALL_PATH}/bin)
+install(TARGETS backend RUNTIME DESTINATION ${INSTALL_PATH}/bin)
 install(IMPORTED_RUNTIME_ARTIFACTS AppCore DESTINATION ${INSTALL_PATH}/bin)
 install(IMPORTED_RUNTIME_ARTIFACTS Ultralight DESTINATION ${INSTALL_PATH}/bin)
 install(IMPORTED_RUNTIME_ARTIFACTS UltralightCore DESTINATION ${INSTALL_PATH}/bin)
