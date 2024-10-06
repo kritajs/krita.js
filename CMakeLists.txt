@@ -10,17 +10,17 @@ set(DEPS_PATH ${CMAKE_SOURCE_DIR}/deps)
 # BINDGEN
 # ==========================================================================================
 
-set(BINDGEN_ROOT_PATH ${CMAKE_SOURCE_DIR}/tools/bindgen)
-set(BINDGEN_COMMAND ${BINDGEN_ROOT_PATH}/ENV/Scripts/python ${BINDGEN_ROOT_PATH}/src/bindgen.py)
-set(BINDGEN_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bindgen)
+# set(BINDGEN_ROOT_PATH ${CMAKE_SOURCE_DIR}/tools/bindgen)
+# set(BINDGEN_COMMAND ${BINDGEN_ROOT_PATH}/ENV/Scripts/python ${BINDGEN_ROOT_PATH}/src/bindgen.py)
+# set(BINDGEN_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bindgen)
 
-# Generate libkis headers
-set(BINDGEN_HEADERS_OUTPUT_PATH ${BINDGEN_OUTPUT_PATH}/headers)
-add_custom_target(
-  bindgen_headers
-  COMMAND ${BINDGEN_COMMAND} ${DEPS_PATH}/krita -o ${BINDGEN_HEADERS_OUTPUT_PATH} -g header
-)
-file(MAKE_DIRECTORY ${BINDGEN_HEADERS_OUTPUT_PATH})
+# # Generate libkis headers
+# set(BINDGEN_HEADERS_OUTPUT_PATH ${BINDGEN_OUTPUT_PATH}/headers)
+# add_custom_target(
+#   bindgen_headers
+#   COMMAND ${BINDGEN_COMMAND} ${DEPS_PATH}/krita -o ${BINDGEN_HEADERS_OUTPUT_PATH} -g header
+# )
+# file(MAKE_DIRECTORY ${BINDGEN_HEADERS_OUTPUT_PATH})
 
 # ==========================================================================================
 # BUILD PLUGIN MANAGER
@@ -57,7 +57,7 @@ set_target_properties(libkis PROPERTIES
   # It's messy but it works ¯\_(ツ)_/¯
   IMPORTED_IMPLIB ${KRITA_INSTALL_PATH}/bin/libkritalibkis.dll
 )
-target_include_directories(libkis INTERFACE ${BINDGEN_HEADERS_OUTPUT_PATH})
+# target_include_directories(libkis INTERFACE ${BINDGEN_HEADERS_OUTPUT_PATH})
 
 # Ultralight - AppCore.dll
 set(ULTRALIGHT_PATH ${DEPS_PATH}/ultralight-sdk-1.3.0-win-x64)

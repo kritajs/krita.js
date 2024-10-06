@@ -1,9 +1,7 @@
+#include "krita.h"
 #include "renderer.h"
-#include <Krita.h>
 #include <QDebug>
-#include <QMainWindow>
 #include <QPointer>
-#include <Window.h>
 
 // Must use `extern "C"` to prevent compiler from name mangling
 #define KRITAJS_EXPORT extern "C" __declspec(dllexport)
