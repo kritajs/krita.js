@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(kritajs LANGUAGES CXX)
 
-set(DEPS_PATH ${CMAKE_SOURCE_DIR}/packages/deps/deps)
+set(DEPS_PATH ${CMAKE_SOURCE_DIR}/packages/deps/installed)
 
 # ==========================================================================================
 # BUILD JS FRONTEND
