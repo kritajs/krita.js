@@ -1,0 +1,14 @@
+{
+  "name": "kritajs",
+  "version": "0.0.0",
+  "scripts": {
+    "prebuild": "cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -B build -G \"MinGW Makefiles\"",
+    "build": "cmake --build build --target install"
+  },
+  "workspaces": [
+    "packages/deps"
+  ],
+  "devDependencies": {
+    "@types/node": "^22.7.4"
+  }
+}
