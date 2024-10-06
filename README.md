@@ -35,7 +35,13 @@ To build krita.js, you'll need to download/install the following:
   - Extract the archive to any destination
   - Add LLVM MinGW's `bin` folder to your `PATH`. You can confirm this is working by opening a shell and running `g++ --version`.
 
-#
+Next, install the project's dependencies:
+
+```sh
+npm install
+```
+
+This will automatically download and install Qt and Ultralight into `packages/deps/deps`. The total download size is somewhere between 300-400MB so this step may take a bit of time.
 
 ### Building
 
