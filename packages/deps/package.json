@@ -1,16 +1,17 @@
 {
   "name": "deps",
   "version": "0.0.0",
+  "private": true,
   "scripts": {
     "postinstall": "tsx ./install.ts"
   },
   "dependencies": {
     "7zip-bin": "^5.2.0",
     "node-7z": "^3.0.0",
-    "simple-git": "^3.27.0",
-    "tsx": "^4.19.1"
+    "simple-git": "^3.27.0"
   },
   "devDependencies": {
-    "@types/node-7z": "^2.1.10"
+    "@types/node-7z": "^2.1.10",
+    "tsx": "^4.19.1"
   }
 }

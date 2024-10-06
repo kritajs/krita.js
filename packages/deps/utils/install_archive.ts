@@ -1,8 +1,8 @@
-import fs from "fs";
+import { createWriteStream, existsSync, mkdirSync } from "fs";
 import { Readable } from "stream"
 import { finished } from "stream/promises";
 import { ReadableStream } from 'stream/web';
-import sevenBin from "7zip-bin";
+import { path7za } from "7zip-bin";
 import { extractFull } from "node-7z";
 
 const TEMP_PATH = "./temp";
@@ -21,8 +21,8 @@ export async function installArchive(
    */
   outputPath: string
 ) {
-  if (!fs.existsSync(TEMP_PATH)) {
-    fs.mkdirSync(TEMP_PATH);
+  if (!existsSync(TEMP_PATH)) {
+    mkdirSync(TEMP_PATH);
   }
 
   // Fetch and save archive
@@ -33,11 +33,11 @@ export async function installArchive(
   }
 
   const downloadDestination = `${TEMP_PATH}/${downloadName}`;
-  const stream = fs.createWriteStream(downloadDestination);
+  const stream = createWriteStream(downloadDestination);
   await finished(Readable.fromWeb(body).pipe(stream));
 
   // Extract binaries to output folder
   extractFull(downloadDestination, outputPath, {
-    $bin: sevenBin.path7za,
+    $bin: path7za,
   });
 }

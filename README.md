@@ -41,7 +41,7 @@ Next, install the project's dependencies:
 npm install
 ```
 
-This will automatically download and install the following dependencies into `packages/deps/deps`:
+This will automatically download and install the following dependencies into `packages/deps/installed`:
 
 - [Krita source](https://invent.kde.org/graphics/krita)
 - [Qt](https://invent.kde.org/dkazakov/krita-ci-artifacts-windows-qt5.15/-/packages/465411)

@@ -1,0 +1,14 @@
+{
+  "name": "bindgen",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "gen-typescript": "tsx ./generators/typescript/index.ts"
+  },
+  "dependencies": {
+    "@lezer/cpp": "^1.1.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.1"
+  }
+}

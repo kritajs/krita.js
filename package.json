@@ -1,11 +1,14 @@
 {
   "name": "kritajs",
   "version": "0.0.0",
+  "private": true,
   "scripts": {
     "prebuild": "cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -B build -G \"MinGW Makefiles\"",
-    "build": "cmake --build build --target install"
+    "build": "cmake --build build --target install",
+    "bindgen-ts": "npm run gen-typescript -w bindgen"
   },
   "workspaces": [
+    "packages/bindgen",
     "packages/deps",
     "src/frontend"
   ],

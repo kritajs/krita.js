@@ -1,6 +1,7 @@
 {
   "name": "kritajs-frontend",
   "version": "0.1.0",
+  "private": true,
   "scripts": {
     "build": "esbuild src/app.tsx --target=es6 --bundle --minify",
     "dev": "esbuild src/app.tsx --bundle --outdir=public --servedir=public"
