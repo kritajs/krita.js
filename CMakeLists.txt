@@ -93,7 +93,7 @@ set_target_properties(WebCore PROPERTIES
 target_include_directories(WebCore INTERFACE ${ULTRALIGHT_PATH}/include)
 
 # Compile krita.js plugin as a shared library
-set(PLUGIN_PATH ./src/plugin/)
+set(PLUGIN_PATH ./src/plugin/src)
 add_library(plugin SHARED
   ${PLUGIN_PATH}/plugin.cpp
   ${PLUGIN_PATH}/renderer.cpp
@@ -101,8 +101,8 @@ add_library(plugin SHARED
   ${PLUGIN_PATH}/binding/binding.cpp
   ${PLUGIN_PATH}/binding/q_object_proxy.cpp
 )
-target_include_directories(plugin PRIVATE ./src/plugin)
-target_include_directories(plugin PRIVATE ./src/plugin/binding)
+target_include_directories(plugin PRIVATE ${PLUGIN_PATH})
+target_include_directories(plugin PRIVATE ${PLUGIN_PATH}/binding)
 add_dependencies(plugin plugin_manager)
 target_link_libraries(plugin PRIVATE Qt5::Core Qt5::Widgets)
 target_link_libraries(plugin PRIVATE libkis)

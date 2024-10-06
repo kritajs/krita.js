@@ -52,7 +52,7 @@ JSValueRef getProperty(JSContextRef ctx, JSObjectRef object,
 
 Binding::Binding(JSContextRef ctx, QStringList libsToSearch,
                  TransformPropertyNameCallback transformPropertyNameCallback)
-    : m_libsToSearch(move(libsToSearch)),
+    : m_libsToSearch(std::move(libsToSearch)),
       transformPropertyName(transformPropertyNameCallback) {
     JSClassDefinition definition = kJSClassDefinitionEmpty;
     definition.getProperty = &getProperty;
