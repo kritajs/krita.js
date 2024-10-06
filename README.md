@@ -26,7 +26,7 @@ To build krita.js, you'll need to download/install the following:
 
 - [Krita](https://krita.org/en/download/)
   - Must be installed so that the linker can link to `libkis`
-  - krita.js targets Krita 5.2.3
+  - krita.js targets Krita 5.2.6
   - Needs to be installed to `C:/Program Files/Krita (x64)`
 - [Node.js](https://nodejs.org/en)
 - [CMake](https://cmake.org/)
@@ -41,7 +41,13 @@ Next, install the project's dependencies:
 npm install
 ```
 
-This will automatically download and install Qt and Ultralight into `packages/deps/deps`. The total download size is somewhere between 300-400MB so this step may take a bit of time.
+This will automatically download and install the following dependencies into `packages/deps/deps`:
+
+- [Krita source](https://invent.kde.org/graphics/krita)
+- [Qt](https://invent.kde.org/dkazakov/krita-ci-artifacts-windows-qt5.15/-/packages/465411)
+- [Ultralight](https://ultralig.ht/)
+
+The total download size is a few hundred megabytes so this step may take a bit of time.
 
 ### Building
 
