@@ -9,4 +9,5 @@
 build/
 build_package/
 
-deps/
+# npm
+node_modules/

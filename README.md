@@ -29,8 +29,6 @@ To build krita.js, you'll need to download/install the following:
   - krita.js targets Krita 5.2.3
   - Needs to be installed to `C:/Program Files/Krita (x64)`
 - [Node.js](https://nodejs.org/en)
-- [Python](https://www.python.org/)
-- [CMake](https://cmake.org/download/)
 - [LLVM MinGW compiler toolchain](https://github.com/mstorsjo/llvm-mingw/releases/download/20220906/llvm-mingw-20220906-ucrt-x86_64.zip)
   - This is the same toolchain used to build Krita. We use the same exact version as the one Krita uses to ensure maximum compatibility when linking to Krita's libraries.
   - Extract the archive to any destination
@@ -40,19 +38,6 @@ You will also need a few code dependencies. Each of the dependencies should be p
 
 - [Krita source](https://invent.kde.org/graphics/krita) - check out tag v5.2.3, which is the latest version of Krita at the time of writing
 - [Qt](https://invent.kde.org/dkazakov/krita-ci-artifacts-windows-qt5.15/-/package_files/930824/download) - rename the extracted folder to `qt`
-- [Ultralight 1.3.0](https://ultralight-files.sfo3.cdn.digitaloceanspaces.com/ultralight-sdk-1.3.0-win-x64.7z)
-
-Your folder structure should look like:
-
-```
-krita.js/
-├─ deps/
-│  ├─ krita/
-│  ├─ qt/
-│  ├─ ultralight-sdk-1.3.0-win-x64/
-├─ src/
-├─ tools/
-```
 
 ### Building
 
