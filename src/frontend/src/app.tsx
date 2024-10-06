@@ -22,9 +22,6 @@ const Button = styled.button`
 
 function onClick() {
   console.log("JS BUTTON CLICKED");
-  // console.log(new Q.Object());
-  // console.log(new Q.PushButton());
-  // console.log(new K.Krita());
 }
 
 function App() {
