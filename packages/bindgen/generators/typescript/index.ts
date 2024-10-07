@@ -19,7 +19,7 @@ function main() {
   // Traverse the syntax tree
   c.iterate((node) => {
     switch (node.name) {
-      // In C++, access specifiers aren't part of the method declaration which means you
+      // In C++, access specifiers aren't part of the method declaration which means we
       // can't tell if a method is public just from the method declaration.
       // To solve this, we keep track of the most recent access specifier. If it's "public",
       // then we can assume that all methods that come after are public (until a non-public
