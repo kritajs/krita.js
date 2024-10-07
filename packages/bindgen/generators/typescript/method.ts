@@ -1,64 +1,24 @@
 import { TreeCursor } from "@lezer/common";
-import { convertPrimitive, convertTemplate, convertTypeIdentifier } from "./type";
-
-function getType(input: string, c: TreeCursor): string {
-  // Determine return type
-  switch (c.name) {
-    case "PrimitiveType":
-      return convertPrimitive(input.substring(c.from, c.to));
-
-    case "TypeIdentifier":
-      return convertTypeIdentifier(input.substring(c.from, c.to));
-    
-    case "TemplateType":
-      return convertTemplate(input, c.node.firstChild?.cursor()!);
-  
-    default:
-      throw new Error(`Could not determine TypeScript type for type located at ${c.from}. The node type is ${c.name}.`);
-  }
-}
-
-class Parameter {
-  type: string;
-  name: string = "s";
-
-  constructor(input: string, c: TreeCursor) {
-    // Ignore any const keywords
-    if (c.name === "const") {
-      c.nextSibling();
-    }
-
-    this.type = getType(input, c);
-    c.nextSibling();
-    c.iterate(() => {
-      if (c.name === "Identifier") {
-        this.name = input.substring(c.from, c.to);
-      }
-    });
-  }
-
-  toString() {
-    return `${this.name}: ${this.type}`;
-  }
-}
+import { Parameter } from "./parameter";
+import { getType, Type, typeToString } from "./type";
 
 export class Method {
   static: boolean = false;
-  return?: string;
+  return?: Type;
   parameters: Parameter[] = [];
   name: string = "";
 
   constructor(input: string, c: TreeCursor) {
     if (c.name === "static") {
       this.static = true;
-      c.next();
+      c.nextSibling();
     } else if (c.name === "virtual") {
-      c.next();
+      c.nextSibling();
     }
 
-    // Parse return type
+    // Cursor should now be at the return type.
     const returnType = getType(input, c);
-    if (returnType !== "void") {
+    if (returnType.name !== "void") {
       this.return = returnType;
     }
     c.nextSibling();
@@ -74,15 +34,20 @@ export class Method {
     })
   }
 
-  toString(): string {
+  toString(body: string): string {
     let output = "";
 
-    if (this.static) output += "static ";
+    if (this.static) {
+      output += "static ";
+    }
+  
     output += `${this.name}(${this.parameters.join(", ")})`;
-    if (this.return && this.return !== "void") output += `: ${this.return}`;
-
-    // Construct method body
-    output += ` { ${this.return ? "return" : ""} ${this.static ? "invokeStatic" : "invoke"}(${this.static ? "this.__className__" : "this.__id__"}, "${this.name}"${this.parameters.length > 0 ? `, [${this.parameters.map(p => p.name).join(", ")}]` : ""}); }`;
+  
+    if (this.return && this.return.name !== "void") {
+      output += `: ${typeToString(this.return)}`;
+    }
+  
+    output += ` { ${body} }`;
 
     return output;
   }
