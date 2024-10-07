@@ -18,7 +18,7 @@ export function convertPrimitive(type: string): string {
 
 export function convertTypeIdentifier(type: string): string {
   let output = type.replace("*", "");
-  return output.charAt(0) === "Q" ? convertPrimitive(output) : output;
+  return output.charAt(0).toUpperCase() === "Q" ? convertPrimitive(output) : output;
 }
 
 export function convertTemplate(input: string, c: TreeCursor): string {
