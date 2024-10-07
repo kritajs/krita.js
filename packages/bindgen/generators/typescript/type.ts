@@ -8,6 +8,7 @@ const MAPPING: Map<string, string> = new Map([
   ["qreal", "number"],
   ["QString", "string"],
   ["QStringList", "string[]"],
+  ["QMap", "Map"],
 ]);
 
 export function convertPrimitive(type: string): string {
