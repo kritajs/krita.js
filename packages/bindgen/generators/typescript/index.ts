@@ -6,7 +6,6 @@ import { Method } from "./method";
 
 const OUTPUT_PATH = "./dist";
 const DEBUG = true;
-const DEBUG_INDENT = 4;
 
 function main() {
   const filename = "Krita.h"
@@ -20,8 +19,11 @@ function main() {
   // Traverse the syntax tree
   c.iterate((node) => {
     switch (node.name) {
-      // Keep track of the most recent "Access" node. We do this because we only want to
-      // export public methods but access specifiers aren't part of the method declaration.
+      // In C++, access specifiers aren't part of the method declaration which means you
+      // can't tell if a method is public just from the method declaration.
+      // To solve this, we keep track of the most recent access specifier. If it's "public",
+      // then we can assume that all methods that come after are public (until a non-public
+      // access specifier is encountered).
       case "Access":
         const access = input.substring(c.from, c.to);
         isPublic = access === "public";
@@ -29,7 +31,7 @@ function main() {
     
       case "FieldDeclaration":
         if (!isPublic) break;
-        methods.push(new Method(input, node.node.cursor()));
+        methods.push(new Method(input, node.node.firstChild?.cursor()!));
         return false;
 
       default:
@@ -44,13 +46,14 @@ function main() {
   writeFileSync(`${OUTPUT_PATH}/${name}.ts`, toClassString(name, methods));
 
   if (DEBUG) {
-    let debug = "";
+    const DEBUG_INDENT = 4;
+    let output = "";
     let level = 0;
     const debugCursor = tree.cursor();
 
     debugCursor.iterate(
       () => {
-        debug += " ".repeat(level * DEBUG_INDENT) + `${debugCursor.name} ${debugCursor.from}-${debugCursor.to}\n`;
+        output += " ".repeat(level * DEBUG_INDENT) + `${debugCursor.name} ${debugCursor.from}-${debugCursor.to}\n`;
         level += 1;
       },
       () => {
@@ -58,7 +61,7 @@ function main() {
       },
     );
 
-    writeFileSync("./debug.txt", debug);
+    writeFileSync(`${OUTPUT_PATH}/${name}.debug.txt`, output);
   }
 }
 
