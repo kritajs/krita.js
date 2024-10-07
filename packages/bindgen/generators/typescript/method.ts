@@ -1,9 +1,51 @@
 import { TreeCursor } from "@lezer/common";
 import { convertPrimitive, convertTemplate, convertTypeIdentifier } from "./type";
 
+function getType(input: string, c: TreeCursor): string {
+  // Determine return type
+  switch (c.name) {
+    case "PrimitiveType":
+      return convertPrimitive(input.substring(c.from, c.to));
+
+    case "TypeIdentifier":
+      return convertTypeIdentifier(input.substring(c.from, c.to));
+    
+    case "TemplateType":
+      return convertTemplate(input, c.node.firstChild?.cursor()!);
+  
+    default:
+      throw new Error(`Could not determine TypeScript type for type located at ${c.from}. The node type is ${c.name}.`);
+  }
+}
+
+class Parameter {
+  type: string;
+  name: string = "s";
+
+  constructor(input: string, c: TreeCursor) {
+    // Ignore any const keywords
+    if (c.name === "const") {
+      c.nextSibling();
+    }
+
+    this.type = getType(input, c);
+    c.nextSibling();
+    c.iterate(() => {
+      if (c.name === "Identifier") {
+        this.name = input.substring(c.from, c.to);
+      }
+    });
+  }
+
+  toString() {
+    return `${this.name}: ${this.type}`;
+  }
+}
+
 export class Method {
-  return?: string;
   static: boolean = false;
+  return: string;
+  parameters: Parameter[] = [];
   name: string = "";
 
   constructor(input: string, c: TreeCursor) {
@@ -13,30 +55,16 @@ export class Method {
     }
 
     // Determine return type
-    switch (c.name) {
-      case "PrimitiveType":
-        this.return = convertPrimitive(input.substring(c.from, c.to));
-        c.next();
-        break;
+    this.return = getType(input, c);
+    c.nextSibling();
 
-      case "TypeIdentifier":
-        this.return = convertTypeIdentifier(input.substring(c.from, c.to));
-        c.next();
-        break;
-      
-      case "TemplateType":
-        this.return = convertTemplate(input, c.node.firstChild?.cursor()!);
-        // Move to the next sibling node. Child nodes will be traversed by convertTemplate().
-        c.next(false); 
-        break;
-    
-      default:
-        throw new Error(`Could not determine return type for method located at ${c.from}. The node type is ${c.name}.`);
-    }
-
-    c.iterate((node) => {
+    // Determine method name and parameters
+    c.iterate(() => {
       if (c.name === "FieldIdentifier") {
         this.name = input.substring(c.from, c.to);
+      } else if (c.name === "ParameterDeclaration") {
+        this.parameters.push(new Parameter(input, c.node.firstChild?.cursor()!))
+        return false;
       }
     })
   }
@@ -45,8 +73,8 @@ export class Method {
     let output = "";
 
     if (this.static) output += "static ";
-    output += `${this.name}()`;
-    if (this.return && this.return !== "void") output += `: ${this.return}`;
+    output += `${this.name}(${this.parameters.join(", ")})`;
+    if (this.return !== "void") output += `: ${this.return}`;
     output += " { }";
 
     return output;

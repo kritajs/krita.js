@@ -1,15 +1,17 @@
 import { TreeCursor } from "@lezer/common";
 
-const MAPPING: Record<string, string | undefined> = {
-  "void": "void",
-  "bool": "boolean",
-  "qreal": "number",
-  "QString": "string",
-  "QStringList": "string[]",
-} as const;
+const MAPPING: Map<string, string> = new Map([
+  ["void", "void"],
+  ["bool", "boolean"],
+  ["int", "number"],
+  ["double", "number"],
+  ["qreal", "number"],
+  ["QString", "string"],
+  ["QStringList", "string[]"],
+]);
 
 export function convertPrimitive(type: string): string {
-  const mapping = MAPPING[type];
+  const mapping = MAPPING.get(type);
   return mapping === undefined ? type : mapping;
 }
 
@@ -35,7 +37,7 @@ export function convertTemplate(input: string, c: TreeCursor): string {
     return `${type}[]`;
   }
 
-  // Other template types will convert to T<arg1, arg2, ...>
+  // Convert all other templates to T<arg1, arg2, ...>
   const args: string[] = [];
   c.iterate(() => {
     if (c.name === "TypeIdentifier") {
