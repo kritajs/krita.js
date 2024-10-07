@@ -52,6 +52,8 @@ export class Method {
     if (c.name === "static") {
       this.static = true;
       c.next();
+    } else if (c.name === "virtual") {
+      c.next();
     }
 
     // Parse return type
@@ -80,7 +82,7 @@ export class Method {
     if (this.return && this.return !== "void") output += `: ${this.return}`;
 
     // Construct method body
-    output += ` { ${this.return ? "return" : ""} ${this.static ? "invokeStatic" : "invoke"}${this.return ? `<${this.return}>` : ""}(${this.static ? "this.__className__" : "this.__id__"}, "${this.name}", [${this.parameters.map(p => p.name).join(", ")}]); }`;
+    output += ` { ${this.return ? "return" : ""} ${this.static ? "invokeStatic" : "invoke"}(${this.static ? "this.__className__" : "this.__id__"}, "${this.name}"${this.parameters.length > 0 ? `, [${this.parameters.map(p => p.name).join(", ")}]` : ""}); }`;
 
     return output;
   }
