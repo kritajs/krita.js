@@ -6,7 +6,8 @@
     "gen-typescript": "tsx ./generators/typescript/index.ts"
   },
   "dependencies": {
-    "@lezer/cpp": "^1.1.2"
+    "@lezer/cpp": "^1.1.2",
+    "prettier": "3.3.3"
   },
   "devDependencies": {
     "tsx": "^4.19.1"

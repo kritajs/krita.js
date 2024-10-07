@@ -44,7 +44,7 @@ class Parameter {
 
 export class Method {
   static: boolean = false;
-  return: string;
+  return?: string;
   parameters: Parameter[] = [];
   name: string = "";
 
@@ -54,11 +54,14 @@ export class Method {
       c.next();
     }
 
-    // Determine return type
-    this.return = getType(input, c);
+    // Parse return type
+    const returnType = getType(input, c);
+    if (returnType !== "void") {
+      this.return = returnType;
+    }
     c.nextSibling();
 
-    // Determine method name and parameters
+    // Parse method name and parameters
     c.iterate(() => {
       if (c.name === "FieldIdentifier") {
         this.name = input.substring(c.from, c.to);
@@ -74,8 +77,10 @@ export class Method {
 
     if (this.static) output += "static ";
     output += `${this.name}(${this.parameters.join(", ")})`;
-    if (this.return !== "void") output += `: ${this.return}`;
-    output += " { }";
+    if (this.return && this.return !== "void") output += `: ${this.return}`;
+
+    // Construct method body
+    output += ` { ${this.return ? "return" : ""} ${this.static ? "invokeStatic" : "invoke"}${this.return ? `<${this.return}>` : ""}(${this.static ? "this.__className__" : "this.__id__"}, "${this.name}", [${this.parameters.map(p => p.name).join(", ")}]); }`;
 
     return output;
   }

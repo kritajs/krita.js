@@ -1,15 +1,16 @@
 
 import { parser } from "@lezer/cpp";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import * as prettier from "prettier";
 import { toClassString } from "./class";
 import { Method } from "./method";
 
 const OUTPUT_PATH = "./dist";
 const DEBUG = true;
 
-function main() {
-  const filename = "Krita.h"
-  const input = readFileSync(`../deps/installed/krita/libs/libkis/${filename}`, "utf-8");
+async function main() {
+  const className = "Krita"
+  const input = readFileSync(`../deps/installed/krita/libs/libkis/${className}.h`, "utf-8");
   const tree = parser.parse(input);
   const c = tree.cursor();
 
@@ -42,8 +43,10 @@ function main() {
   if (!existsSync(OUTPUT_PATH)) {
     mkdirSync(OUTPUT_PATH);
   }
-  const name = filename.replace(".h", "");
-  writeFileSync(`${OUTPUT_PATH}/${name}.ts`, toClassString(name, methods));
+  let output = toClassString(className, methods);
+  output = await prettier.format(output, { semi: true, parser: "typescript" });
+  writeFileSync(`${OUTPUT_PATH}/${className}.ts`, output);
+  copyFileSync(`${__dirname}/static/kritajs.ts`, `${OUTPUT_PATH}/kritajs.ts`);
 
   if (DEBUG) {
     const DEBUG_INDENT = 4;
@@ -61,7 +64,7 @@ function main() {
       },
     );
 
-    writeFileSync(`${OUTPUT_PATH}/${name}.debug.txt`, output);
+    writeFileSync(`${OUTPUT_PATH}/${className}.debug.txt`, output);
   }
 }
 
