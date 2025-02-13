@@ -1,3 +1,5 @@
+> PROJECT IS NOT ACTIVELY BEING DEVELOPED ANYMORE
+
 # krita.js
 
 krita.js is a Krita plugin that allows users to create plugins using HTML, CSS and JavaScript.
